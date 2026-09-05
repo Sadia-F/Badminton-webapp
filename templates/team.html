@@ -1,72 +1,42 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Team - NYIT Badminton Team Manager</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-    <nav>
-        <div class="container">
-            <a href="/" class="logo">🏸 <span>Team</span> Manager</a>
-            <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="/announcements">📢 Announcements</a>
-                <a href="/schedule">📅 Schedule</a>
-                <a href="/achievements">🏆 Achievements</a>
-                <a href="/team">👥 Team</a>
-                {% if current_user.is_authenticated %}
-                    <a href="/dashboard">Dashboard</a>
-                    {% if current_user.is_admin %}
-                        <a href="/admin" class="admin-link">⭐ Admin</a>
-                    {% endif %}
-                    <a href="/logout" class="logout-link">🚪 Logout</a>
-                {% else %}
-                    <a href="/login" class="btn-primary">🔐 Login</a>
-                {% endif %}
-            </div>
-        </div>
-    </nav>
+{% extends "base.html" %}
 
+{% block title %}Our Team - NYIT Badminton{% endblock %}
+
+{% block content %}
     <div class="container">
         <div class="section">
-            <h2>👥 Our Team Members</h2>
-            <p style="color: var(--gray); margin-bottom: 30px;">Meet our talented NYIT badminton players</p>
-            <div class="team-grid">
+            <h2 style="text-align: center; margin-bottom: 40px;">👥 Our Team Members</h2>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">Meet our talented NYIT badminton players</p>
+            <div class="dashboard-grid">
                 {% if players %}
                     {% for player in players %}
-                        <div class="player-card">
-                            <div class="player-avatar">
-                                {% if player.is_admin %}
+                        <div class="card" style="text-align: center;">
+                            <div class="player-avatar" style="font-size: 40px; margin-bottom: 15px;">
+                                {% if player.role == 'admin' %}
                                     👑
+                                {% elif player.role == 'captain' %}
+                                    ⭐
                                 {% else %}
                                     🏸
                                 {% endif %}
                             </div>
-                            <h3>{{ player.full_name }}</h3>
-                            <p class="username">@{{ player.username }}</p>
-                            {% if player.is_admin %}
-                                <span class="badge-admin">⭐ Team Captain</span>
+                            <h3 style="cursor: pointer; color: var(--nyit-blue); margin-bottom: 5px;" onclick="location.href='/profile/{{ player.username }}'">{{ player.full_name }}</h3>
+                            <p class="username" style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">@{{ player.username }}</p>
+                            {% if player.role == 'admin' %}
+                                <span class="role-badge admin">👑 Team Admin</span>
+                            {% elif player.role == 'captain' %}
+                                <span class="role-badge admin">⭐ Team Captain</span>
                             {% else %}
-                                <span class="badge-player">🏸 Player</span>
+                                <span class="role-badge player">🏸 Player</span>
                             {% endif %}
                         </div>
                     {% endfor %}
                 {% else %}
-                    <div class="card">
+                    <div class="card" style="text-align: center; grid-column: 1 / -1;">
                         <p>No players yet. Join the team!</p>
                     </div>
                 {% endif %}
             </div>
         </div>
     </div>
-
-    <footer>
-        <div class="container">
-            <p>🏸 NYIT Badminton Team Manager &bull; New York Institute of Technology</p>
-            <p style="font-size: 12px; opacity: 0.7; margin-top: 5px;">© 2024 All Rights Reserved</p>
-        </div>
-    </footer>
-</body>
-</html>
+{% endblock %}

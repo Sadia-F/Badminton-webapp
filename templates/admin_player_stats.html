@@ -1,78 +1,72 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Player Stats - NYIT Badminton</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-    <nav>
-        <div class="container">
-            <a href="/" class="logo">🏸 <span>Team</span> Manager</a>
-            <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="/dashboard">Dashboard</a>
-                <a href="/admin" class="admin-link">⭐ Admin</a>
-                <a href="/logout" class="logout-link">🚪 Logout</a>
-            </div>
-        </div>
-    </nav>
+{% extends "base.html" %}
 
+{% block title %}Player Stats - NYIT Badminton{% endblock %}
+
+{% block content %}
     <div class="container">
         <div class="section">
-            <h2>📊 Player Statistics</h2>
-            
+            <h2 style="text-align: center; margin-bottom: 40px;">📊 Player Statistics</h2>
+
             <div class="card">
-                <h3>👤 {{ player.full_name }}</h3>
-                <p>@{{ player.username }}</p>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 20px;">
-                    <div style="background: #e3f2fd; padding: 15px; border-radius: 10px; text-align: center;">
+                <h3 style="text-align: center; margin-bottom: 20px;">👤 {{ player.full_name }}</h3>
+                <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">@{{ player.username }}</p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                    <div class="stat-pill" style="background: #e3f2fd; padding: 20px; text-align: center; border-radius: var(--radius-md); border: 1px solid #bbdefb;">
                         <div style="font-size: 28px;">⭐</div>
-                        <div>Avg Rating</div>
-                        <div style="font-size: 24px; font-weight: bold; color: #0033A0;">{{ avg_rating }}</div>
+                        <div style="font-size: 14px; color: var(--text-muted);">Avg Rating</div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--nyit-blue);">{{ avg_rating }}/5</div>
                     </div>
-                    <div style="background: #e8f5e9; padding: 15px; border-radius: 10px; text-align: center;">
+                    <div class="stat-pill" style="background: #e8f5e9; padding: 20px; text-align: center; border-radius: var(--radius-md); border: 1px solid #c8e6c9;">
                         <div style="font-size: 28px;">✅</div>
-                        <div>Check-ins</div>
-                        <div style="font-size: 24px; font-weight: bold; color: green;">{{ total_checkins }}</div>
+                        <div style="font-size: 14px; color: var(--text-muted);">Check-ins</div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--success);">{{ total_checkins }}</div>
                     </div>
-                    <div style="background: #fff3e0; padding: 15px; border-radius: 10px; text-align: center;">
+                    <div class="stat-pill" style="background: #fff3e0; padding: 20px; text-align: center; border-radius: var(--radius-md); border: 1px solid #ffe0b2;">
                         <div style="font-size: 28px;">🏆</div>
-                        <div>Wins</div>
-                        <div style="font-size: 24px; font-weight: bold; color: #FFD700;">{{ wins }}</div>
+                        <div style="font-size: 14px; color: var(--text-muted);">Wins</div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--secondary);">{{ wins }}</div>
                     </div>
-                    <div style="background: #f3e5f5; padding: 15px; border-radius: 10px; text-align: center;">
+                    <div class="stat-pill" style="background: #f3e5f5; padding: 20px; text-align: center; border-radius: var(--radius-md); border: 1px solid #e1bee7;">
                         <div style="font-size: 28px;">📊</div>
-                        <div>Win Rate</div>
+                        <div style="font-size: 14px; color: var(--text-muted);">Win Rate</div>
                         <div style="font-size: 24px; font-weight: bold; color: #7B1FA2;">{{ win_rate }}%</div>
                     </div>
                 </div>
             </div>
 
-            <h3 style="margin-top: 30px;">Recent Performances</h3>
-            {% if performances %}
-                {% for perf in performances %}
-                    <div class="card">
-                        <p><strong>Rating:</strong> ⭐ {{ perf.rating }}/10</p>
-                        <p>Technique: {{ perf.technique }}/10 | Speed: {{ perf.speed }}/10 | Stamina: {{ perf.stamina }}/10 | Teamwork: {{ perf.teamwork }}/10</p>
-                        {% if perf.comments %}
-                            <p style="color: #666;">"{{ perf.comments }}"</p>
-                        {% endif %}
-                        <small>{{ perf.date.strftime('%B %d, %Y') }}</small>
+            <h3 style="margin-top: 40px; text-align: center; margin-bottom: 20px;">Recent Performance Evaluations</h3>
+            <div class="dashboard-grid">
+                {% if performances %}
+                    {% for perf in performances %}
+                        <div class="card">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="flex: 1;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                        <strong style="font-size: 18px;">Rating Type: {{ perf.rating_type|upper }}</strong>
+                                        <small>{{ perf.date.strftime('%B %d, %Y') }}</small>
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; margin-bottom: 10px;">
+                                        <span class="stat-pill" style="font-size: 11px; padding: 5px;">Smash: {{ perf.smash_accuracy }}/5</span>
+                                        <span class="stat-pill" style="font-size: 11px; padding: 5px;">Net: {{ perf.net_play }}/5</span>
+                                        <span class="stat-pill" style="font-size: 11px; padding: 5px;">Foot: {{ perf.footwork }}/5</span>
+                                        <span class="stat-pill" style="font-size: 11px; padding: 5px;">Cons: {{ perf.consistency }}/5</span>
+                                        <span class="stat-pill" style="font-size: 11px; padding: 5px;">Var: {{ perf.shot_variety }}/5</span>
+                                    </div>
+                                    {% if perf.comments %}
+                                        <p style="color: #666; font-style: italic; margin-top: 10px; font-size: 13px;">"{{ perf.comments }}"</p>
+                                    {% endif %}
+                                </div>
+                                <span style="font-size: 40px; margin-left: 20px;">🏸</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="card" style="text-align: center; grid-column: 1 / -1;">
+                        <p>No performances recorded.</p>
                     </div>
-                {% endfor %}
-            {% else %}
-                <p>No performances recorded.</p>
-            {% endif %}
+                {% endif %}
+            </div>
         </div>
     </div>
-
-    <footer>
-        <div class="container">
-            <p>🏸 NYIT Badminton Team Manager &bull; New York Institute of Technology</p>
-        </div>
-    </footer>
-</body>
-</html>
+{% endblock %}

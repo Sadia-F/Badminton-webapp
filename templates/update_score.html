@@ -1,33 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Score - NYIT Badminton</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-    <nav>
-        <div class="container">
-            <a href="/" class="logo">🏸 <span>Team</span> Manager</a>
-            <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="/dashboard">Dashboard</a>
-                {% if current_user.is_admin %}
-                    <a href="/admin" class="admin-link">⭐ Admin</a>
-                {% endif %}
-                <a href="/logout" class="logout-link">🚪 Logout</a>
-            </div>
-        </div>
-    </nav>
+{% extends "base.html" %}
 
+{% block title %}Update Score - NYIT Badminton{% endblock %}
+
+{% block content %}
     <div class="container">
         <div class="section">
-            <h2>📊 Update Scores</h2>
-            
-            <div style="max-width: 500px; margin-bottom: 30px;">
+            <h2 style="text-align: center; margin-bottom: 40px;">📊 Update Scores</h2>
+
+            <div style="max-width: 500px; margin: 0 auto 40px auto;">
                 <form method="POST" class="card">
-                    <h3>Enter Score</h3>
+                    <h3 style="text-align: center; margin-bottom: 20px;">Enter Score</h3>
                     <div class="form-group">
                         <label>Match</label>
                         <select name="match_id" required>
@@ -47,33 +29,30 @@
                         <label>Opponent Score</label>
                         <input type="number" name="opponent_score" required min="0" placeholder="Enter opponent score">
                     </div>
-                    <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #0033A0, #0072CE); color: white;">
+                    <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #0033A0, #0072CE); color: white; width: 100%; padding: 15px; font-size: 16px; border-radius: 50px;">
                         Update Score
                     </button>
                 </form>
             </div>
 
-            <h3>Your Score History</h3>
-            {% if scores %}
-                {% for score in scores %}
-                    <div class="card">
-                        <p><strong>Match:</strong> {{ score.match.match_date }}</p>
-                        <p><strong>Score:</strong> {{ score.player_score }} - {{ score.opponent_score }}</p>
-                        <p style="color: {% if score.is_winner %}green{% else %}red{% endif %};">
-                            {% if score.is_winner %}🏆 Won{% else %}💔 Lost{% endif %}
-                        </p>
+            <h3 style="text-align: center; margin-bottom: 20px;">Your Score History</h3>
+            <div class="dashboard-grid">
+                {% if scores %}
+                    {% for score in scores %}
+                        <div class="card" style="text-align: center;">
+                            <p style="margin: 0; font-weight: 600; color: var(--text-muted);">Match Date: {{ score.match.match_date }}</p>
+                            <p style="font-size: 24px; font-weight: 800; margin: 10px 0;">{{ score.player_score }} - {{ score.opponent_score }}</p>
+                            <p style="color: {% if score.is_winner %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">
+                                {% if score.is_winner %}🏆 Won{% else %}💔 Lost{% endif %}
+                            </p>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="card" style="text-align: center; grid-column: 1 / -1;">
+                        <p>No scores recorded yet.</p>
                     </div>
-                {% endfor %}
-            {% else %}
-                <p>No scores recorded yet.</p>
-            {% endif %}
+                {% endif %}
+            </div>
         </div>
     </div>
-
-    <footer>
-        <div class="container">
-            <p>🏸 NYIT Badminton Team Manager &bull; New York Institute of Technology</p>
-        </div>
-    </footer>
-</body>
-</html>
+{% endblock %}

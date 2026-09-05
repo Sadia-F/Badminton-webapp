@@ -1,49 +1,27 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Achievements - Badminton Team Manager</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-    <nav>
-        <div class="container">
-            <a href="/" class="logo">🏸 Team Manager</a>
-            <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="/announcements">Announcements</a>
-                <a href="/schedule">Schedule</a>
-                <a href="/achievements">Achievements</a>
-                <a href="/team">Team</a>
-                {% if current_user.is_authenticated %}
-                    <a href="/dashboard">Dashboard</a>
-                    <a href="/logout" style="color: #ff6b6b;">Logout</a>
-                {% else %}
-                    <a href="/login" class="btn-primary">Login</a>
-                {% endif %}
-            </div>
-        </div>
-    </nav>
+{% extends "base.html" %}
 
+{% block title %}Achievements - NYIT Badminton{% endblock %}
+
+{% block content %}
     <div class="container">
         <div class="section">
-            <h2>🏆 Team Achievements</h2>
-            <div class="achievements-grid">
+            <h2 style="text-align: center; margin-bottom: 40px;">🏆 Team Achievements</h2>
+            <div class="dashboard-grid">
                 {% if achievements %}
                     {% for achievement in achievements %}
-                        <div class="achievement-card">
-                            <div class="trophy">🏆</div>
-                            <h3>{{ achievement.title }}</h3>
-                            <p>{{ achievement.description }}</p>
-                            <small>{{ achievement.date_achieved.strftime('%B %d, %Y') }}</small>
+                        <div class="card" style="text-align: center;">
+                            <div style="font-size: 40px; margin-bottom: 15px;">🏆</div>
+                            <h3 style="margin-bottom: 10px;">{{ achievement.title }}</h3>
+                            <p style="color: var(--text-muted); margin-bottom: 15px;">{{ achievement.description }}</p>
+                            <small style="color: var(--text-muted); display: block;">📅 {{ achievement.date_achieved.strftime('%B %d, %Y') }}</small>
                         </div>
                     {% endfor %}
                 {% else %}
-                    <p>No achievements yet. Start winning! 🏸</p>
+                    <div class="card" style="text-align: center; grid-column: 1 / -1;">
+                        <p>No achievements yet. Start winning! 🏸</p>
+                    </div>
                 {% endif %}
             </div>
         </div>
     </div>
-</body>
-</html>
+{% endblock %}

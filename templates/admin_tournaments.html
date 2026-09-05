@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Tournaments - NYIT Badminton{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="section">
+            <h2 style="text-align: center; margin-bottom: 40px;">🏆 Manage Tournaments</h2>
+
+            <div style="max-width: 600px; margin: 0 auto 40px auto;">
+                <form method="POST" class="card">
+                    <h3 style="text-align: center; margin-bottom: 20px;">Create New Tournament</h3>
+                    <div class="form-group">
+                        <label>Tournament Name</label>
+                        <input type="text" name="name" required placeholder="e.g. Winter Open 2025">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Start Date</label>
+                            <input type="date" name="start_date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>End Date</label>
+                            <input type="date" name="end_date" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary" style="width: 100%; padding: 12px; font-size: 16px; cursor: pointer; border-radius: 50px;">
+                        Create Tournament
+                    </button>
+                </form>
+            </div>
+
+            <h3 style="text-align: center; margin-bottom: 20px;">Existing Tournaments</h3>
+            <div class="dashboard-grid">
+                {% if tournaments %}
+                    {% for t in tournaments %}
+                        <div class="card" style="display: flex; justify-content: space-between; align-items: center; gap: 20px;">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <strong style="font-size: 18px;">{{ t.name }}</strong>
+                                    <span class="role-badge player" style="font-size: 10px;">{{ 'Active' if t.is_active else 'Inactive' }}</span>
+                                </div>
+                                <p style="margin: 5px 0; color: var(--text-muted);">
+                                    📅 {{ t.start_date }} to {{ t.end_date }}
+                                </p>
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                <a href="/admin/auto-seed?tournament_id={{ t.id }}" class="btn-primary" style="padding: 8px 12px; font-size: 13px; background: linear-gradient(135deg, #6366F1, #8B5CF6);">
+                                    🤖 Auto-Seed
+                                </a>
+                                <a href="/admin/create-brackets?tournament_id={{ t.id }}" class="btn-primary" style="padding: 8px 12px; font-size: 13px;">
+                                    ➕ Add Match
+                                </a>
+                                <a href="/admin/tournaments/delete/{{ t.id }}" class="logout-link" style="text-decoration: none; font-weight: bold; padding: 8px;" onclick="return confirm('Delete this tournament?')">🗑️</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="card" style="text-align: center; grid-column: 1 / -1;">
+                        <p>No tournaments created yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Auto-Seed Brackets - NYIT Badminton{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="section">
+            <h2 style="text-align: center; margin-bottom: 40px;">🤖 Automated Bracket Seeding</h2>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">Use performance ratings to automatically distribute teams and create a balanced bracket</p>
+
+            <form method="POST" class="card" style="max-width: 600px; margin: 0 auto; text-align: center;">
+                <div class="form-group" style="margin-bottom: 30px;">
+                    <label>Select Tournament</label>
+                    <select name="tournament_id" required style="width: 100%; padding: 15px; font-size: 16px;">
+                        <option value="">-- Select Tournament --</option>
+                        {% for t in tournaments %}
+                            <option value="{{ t.id }}">{{ t.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div style="background: var(--bg-main); padding: 20px; border-radius: var(--radius-md); margin-bottom: 30px; text-align: left; font-size: 14px; color: var(--text-muted);">
+                    <h4 style="margin-bottom: 10px; color: var(--text-main);">How it works:</h4>
+                    <ul style="padding-left: 20px; line-height: 1.8;">
+                        <li>Calculates <strong>Composite Ratings</strong> for all players based on their last 5 performance reviews.</li>
+                        <li>Creates <strong>Balanced Teams</strong> by pairing the highest-rated players with the lowest-rated.</li>
+                        <li>Applies <strong>Standard Seeding</strong> (Seed 1 vs Seed N) to prevent top teams from meeting in early rounds.</li>
+                    </ul>
+                </div>
+
+                <button type="submit" class="btn-primary" style="padding: 15px 40px; font-size: 18px; border-radius: 50px; width: 100%;">
+                    ⚡ Generate Auto-Seeded Bracket
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

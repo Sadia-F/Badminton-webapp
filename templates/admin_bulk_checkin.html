@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Bulk Check-in - NYIT Badminton{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="section">
+            <h2 style="text-align: center;">✅ Bulk Player Check-in</h2>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">Quickly mark multiple players as present</p>
+
+            <form method="POST" class="card" style="max-width: 800px; margin: 0 auto;">
+                <div class="form-group" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 30px;">
+                    <label style="margin: 0;">Attendance Date:</label>
+                    <input type="date" name="date" value="{{ today }}" required style="width: auto;">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="margin: 0;">Select Players</h3>
+                        <label style="font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                            <input type="checkbox" id="select-all"> Select All
+                        </label>
+                    </div>
+
+                    <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
+                        {% for player in players %}
+                            <label style="display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition);" class="player-checkbox">
+                                <input type="checkbox" name="player_ids" value="{{ player.id }}" class="player-checkbox-input">
+                                <span style="font-weight: 500;">{{ player.full_name }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button type="submit" class="btn-primary" style="padding: 15px 40px; font-size: 18px; border-radius: 50px; width: 100%;">
+                        Confirm Bulk Check-in
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        document.getElementById('select-all').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.player-checkbox-input');
+            checkboxes.forEach(cb => cb.checked = this.checked);
+        });
+    </script>
+{% endblock %}

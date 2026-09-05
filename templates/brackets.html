@@ -1,66 +1,103 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brackets - NYIT Badminton</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-    <nav>
-        <div class="container">
-            <a href="/" class="logo">🏸 <span>Team</span> Manager</a>
-            <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="/dashboard">Dashboard</a>
-                {% if current_user.is_admin %}
-                    <a href="/admin" class="admin-link">⭐ Admin</a>
-                {% endif %}
-                <a href="/logout" class="logout-link">🚪 Logout</a>
-            </div>
-        </div>
-    </nav>
+{% extends "base.html" %}
 
+{% block title %}Tournament Brackets - NYIT Badminton{% endblock %}
+
+{% block head %}
+    <style>
+        .bracket-wrapper {
+            display: flex;
+            gap: 50px;
+            padding: 20px 0;
+            overflow-x: auto;
+            align-items: center;
+        }
+        .bracket-round {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            gap: 20px;
+            min-width: 300px;
+        }
+        .bracket-match {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            position: relative;
+        }
+        .match-team {
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            border-bottom: 1px solid #eee;
+        }
+        .match-team:last-child {
+            border-bottom: none;
+        }
+        .match-team.winner {
+            background: #d4edda;
+            font-weight: bold;
+            color: #155724;
+        }
+        .match-score {
+            font-weight: 700;
+            color: var(--nyit-blue);
+            min-width: 30px;
+            text-align: center;
+        }
+        .round-title {
+            text-align: center;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: var(--dark);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .bracket-connector {
+            position: absolute;
+            right: -50px;
+            top: 50%;
+            width: 50px;
+            height: 2px;
+            background: #ccc;
+            z-index: -1;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
     <div class="container">
         <div class="section">
-            <h2>🏆 Tournament Brackets</h2>
-            
+            <h2 style="text-align: center; margin-bottom: 40px;">🏆 Tournament Brackets</h2>
+
             {% if rounds %}
-                {% for round_num, matches in rounds.items() %}
-                    <h3 style="margin-top: 30px;">Round {{ round_num }}</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-                        {% for match in matches %}
-                            <div class="card" style="background: #f8f9fa;">
-                                <p><strong>{{ match.match_date }}</strong> at {{ match.match_time }}</p>
-                                <div style="display: flex; justify-content: space-between; padding: 10px; background: white; border-radius: 8px;">
-                                    <div>
-                                        <strong>Team 1</strong>
-                                        <p>{{ match.team1_player1 }}{% if match.team1_player2 %} & {{ match.team1_player2 }}{% endif %}</p>
+                <div class="bracket-wrapper">
+                    {% for round_num, matches in rounds.items() %}
+                        <div class="bracket-round">
+                            <div class="round-title">Round {{ round_num }}</div>
+                            {% for match in matches %}
+                                <div class="bracket-match">
+                                    <div class="match-team {% if match.winner == match.team1_player1 or match.winner == match.team1_player2 %}winner{% endif %}">
+                                        <span>{{ match.team1_player1 }}{% if match.team1_player2 %} & {{ match.team1_player2 }}{% endif %}</span>
+                                        <span class="match-score">{{ match.score_team1 }}</span>
                                     </div>
-                                    <div style="display: flex; align-items: center;">VS</div>
-                                    <div style="text-align: right;">
-                                        <strong>Team 2</strong>
-                                        <p>{{ match.team2_player1 }}{% if match.team2_player2 %} & {{ match.team2_player2 }}{% endif %}</p>
+                                    <div class="match-team {% if match.winner == match.team2_player1 or match.winner == match.team2_player2 %}winner{% endif %}">
+                                        <span>{{ match.team2_player1 }}{% if match.team2_player2 %} & {{ match.team2_player2 }}{% endif %}</span>
+                                        <span class="match-score">{{ match.score_team2 }}</span>
                                     </div>
                                 </div>
-                                {% if match.winner %}
-                                    <p style="margin-top: 10px; color: green;">🏆 Winner: {{ match.winner }}</p>
-                                {% endif %}
-                                <p style="font-size: 12px; color: #666;">Status: {{ match.status }}</p>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endfor %}
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
             {% else %}
-                <p>No brackets created yet.</p>
+                <div class="card" style="text-align: center;">
+                    <p>No brackets created yet.</p>
+                </div>
             {% endif %}
         </div>
     </div>
-
-    <footer>
-        <div class="container">
-            <p>🏸 NYIT Badminton Team Manager &bull; New York Institute of Technology</p>
-        </div>
-    </footer>
-</body>
-</html>
+{% endblock %}

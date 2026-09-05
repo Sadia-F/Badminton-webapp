@@ -1,57 +1,98 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendar - NYIT Badminton</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-    <nav>
-        <div class="container">
-            <a href="/" class="logo">🏸 <span>Team</span> Manager</a>
-            <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="/dashboard">Dashboard</a>
-                <a href="/admin" class="admin-link">⭐ Admin</a>
-                <a href="/logout" class="logout-link">🚪 Logout</a>
-            </div>
-        </div>
-    </nav>
+{% extends "base.html" %}
 
+{% block title %}Calendar - NYIT Badminton{% endblock %}
+
+{% block head %}
+    <style>
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: 120px repeat(12, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        .calendar-day-header {
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            min-width: 60px;
+        }
+        .day-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            background: white;
+            border: 1px solid #eee;
+            border-radius: var(--radius-sm);
+            padding: 10px;
+        }
+        .slot-cell {
+            padding: 15px;
+            text-align: center;
+            border-radius: var(--radius-sm);
+            border: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        .bg-high { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .bg-med { background-color: #fff3cd; color: #856404; border-color: #ffeeba; }
+        .bg-low { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+        .bg-none { background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; }
+
+        .slot-count {
+            font-size: 20px;
+            font-weight: 800;
+            display: block;
+        }
+        .slot-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
     <div class="container">
         <div class="section">
-            <h2>📅 Availability Calendar</h2>
-            <p style="color: var(--gray); margin-bottom: 30px;">See which days are good for practice based on player availability</p>
-            
-            {% if date_availability %}
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                    {% for date, data in date_availability.items()|sort %}
-                        <div class="card" style="text-align: center; {% if data.available / data.total > 0.5 %}border-left: 4px solid green;{% else %}border-left: 4px solid orange;{% endif %}">
-                            <strong>{{ date }}</strong>
-                            <p style="font-size: 24px; font-weight: bold; color: {% if data.available / data.total > 0.5 %}green{% else %}orange{% endif %};">
-                                {{ data.available }}/{{ data.total }}
-                            </p>
-                            <p style="font-size: 12px; color: #666;">
-                                {% if data.available / data.total > 0.5 %}
-                                    ✅ Good for practice
-                                {% else %}
-                                    ⚠️ Low availability
+            <h2 style="text-align: center; margin-bottom: 40px;">📅 Practice Availability Heatmap</h2>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">Identify the best time slots for team practice</p>
+
+            <div class="card">
+                <div class="calendar-grid">
+                    <div class="calendar-day-header">Day</div>
+                    {% for slot in slots %}
+                        <div class="calendar-day-header">{{ slot|upper }}</div>
+                    {% endfor %}
+
+                    {% set days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
+                    {% for day in days %}
+                        <div class="grid-row" style="display: contents;">
+                            <div class="day-label">{{ day }}</div>
+                            {% for slot in slots %}
+                                {% set count = calendar_data[day][slot] if day in calendar_data else 0 %}
+                                {% set color_class = 'bg-none' %}
+                                {% if count >= 8 %}{% set color_class = 'bg-high' %}
+                                {% elif count >= 5 %}{% set color_class = 'bg-med' %}
+                                { % elif count > 0 %}{% set color_class = 'bg-low' %}
                                 {% endif %}
-                            </p>
+
+                                <div class="slot-cell {{ color_class }}">
+                                    <span class="slot-count">{{ count }}</span>
+                                    <span class="slot-label">Players</span>
+                                </div>
+                            {% endfor %}
                         </div>
                     {% endfor %}
                 </div>
-            {% else %}
-                <p>No availability data yet. Players need to set their availability.</p>
-            {% endif %}
+            </div>
         </div>
     </div>
-
-    <footer>
-        <div class="container">
-            <p>🏸 NYIT Badminton Team Manager &bull; New York Institute of Technology</p>
-        </div>
-    </footer>
-</body>
-</html>
+{% endblock %}

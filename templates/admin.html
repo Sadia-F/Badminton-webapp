@@ -1,86 +1,93 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - NYIT Badminton</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-    <nav>
-        <div class="container">
-            <a href="/" class="logo">🏸 <span>Team</span> Manager</a>
-            <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="/dashboard">Dashboard</a>
-                <a href="/admin" class="admin-link">⭐ Admin</a>
-                <a href="/logout" class="logout-link">🚪 Logout</a>
-            </div>
-        </div>
-    </nav>
+{% extends "base.html" %}
 
+{% block title %}Admin Panel - NYIT Badminton{% endblock %}
+
+{% block content %}
     <div class="container">
-        <div class="admin-header">
-            <h1>⭐ Admin Panel</h1>
-            <p style="color: var(--gray);">Manage your NYIT badminton team</p>
+        <div class="dashboard-header">
+            <h1 style="display: flex; align-items: center; gap: 15px;">
+                <i class="fa-solid fa-user-shield" style="color: var(--secondary);"></i>
+                Admin Control Suite
+            </h1>
+            <p style="color: var(--text-muted);">Centralized management for NYIT Badminton players and operations</p>
         </div>
 
-        <div class="admin-grid">
-            <div class="admin-card">
-                <h3>👥 Players <span class="count">{{ players|length }}</span></h3>
-                {% for player in players %}
-                    <div class="player-item">
-                        <a href="/admin/player-stats/{{ player.id }}" style="text-decoration: none; color: var(--dark);">
-                            {{ player.full_name }}
-                        </a>
-                        {% if player.is_admin %}
-                            <span class="admin-star">⭐</span>
-                        {% endif %}
-                    </div>
-                {% endfor %}
+        <div class="dashboard-grid">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="margin: 0;"><i class="fa-solid fa-users" style="margin-right: 10px;"></i> Players</h3>
+                    <span class="role-badge player">{{ players|length }}</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    {% for player in players %}
+                        <div class="player-item" style="padding: 10px 15px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center; transition: var(--transition); cursor: pointer;" onclick="location.href='/admin/player-stats/{{ player.id }}'">
+                            <span style="font-weight: 500; color: var(--text-main);">{{ player.full_name }}</span>
+                            {% if player.role in ['admin', 'captain'] %}
+                                <span class="admin-star" style="color: var(--secondary);">⭐</span>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
 
-            <div class="admin-card">
-                <h3>📢 Announcements <span class="count">{{ announcements|length }}</span></h3>
-                {% for ann in announcements[:5] %}
-                    <div class="announcement-item">
-                        <strong>{{ ann.title }}</strong>
-                        <span class="date">{{ ann.date_posted.strftime('%B %d, %Y') }}</span>
-                    </div>
-                {% endfor %}
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="margin: 0;"><i class="fa-solid fa-bullhorn" style="margin-right: 10px;"></i> Announcements</h3>
+                    <span class="role-badge player">{{ announcements|length }}</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    {% for ann in announcements[:5] %}
+                        <div class="announcement-item" style="padding: 12px; background: var(--bg-main); border-left: 4px solid var(--nyit-blue); border-radius: 4px;">
+                            <strong style="display: block; font-size: 14px;">{{ ann.title }}</strong>
+                            <span style="font-size: 11px; color: var(--text-muted);">{{ ann.date_posted.strftime('%B %d, %Y') }}</span>
+                        </div>
+                    {% endfor %}
+                    <a href="/admin/announcements" style="display: block; text-align: center; margin-top: 10px; text-decoration: none; color: var(--nyit-blue); font-weight: 600; font-size: 13px;">
+                        Manage All Announcements <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
             </div>
 
-            <div class="admin-card">
-                <h3>✅ Today's Check-ins <span class="count">{{ checkins|length }}</span></h3>
-                {% for checkin in checkins %}
-                    <div class="player-item">
-                        {{ checkin.player.full_name }}
-                        <span style="font-size: 12px; color: green;">✅ {{ checkin.check_in_time.strftime('%I:%M %p') }}</span>
-                    </div>
-                {% else %}
-                    <p>No check-ins today.</p>
-                {% endfor %}
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="margin: 0;"><i class="fa-solid fa-check-double" style="margin-right: 10px;"></i> Daily Check-ins</h3>
+                    <span class="role-badge player">{{ checkins|length }}</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    {% for checkin in checkins %}
+                        <div class="player-item" style="padding: 10px 15px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 500;">{{ checkin.player.full_name }}</span>
+                            <span style="font-size: 12px; color: var(--success); font-weight: 700;">✅ {{ checkin.check_in_time.strftime('%I:%M %p') }}</span>
+                        </div>
+                    {% else %}
+                        <p style="color: var(--text-muted); text-align: center; padding: 20px;">No check-ins today.</p>
+                    {% endfor %}
+                </div>
             </div>
 
-            <div class="admin-card quick-actions">
-                <h3>⚡ Quick Actions</h3>
-                <a href="/admin/create-brackets" class="btn-primary" style="display: block; text-align: center; background: linear-gradient(135deg, #0033A0, #0072CE); color: white; text-decoration: none; padding: 12px; margin: 6px 0; border-radius: 10px;">
-                    🏆 Create Brackets
-                </a>
-                <a href="/admin/attendance" class="btn-primary" style="display: block; text-align: center; background: linear-gradient(135deg, #FFD700, #F59E0B); color: #1A1A2E; text-decoration: none; padding: 12px; margin: 6px 0; border-radius: 10px;">
-                    📊 View Attendance
-                </a>
-                <a href="/admin/calendar" class="btn-primary" style="display: block; text-align: center; background: linear-gradient(135deg, #10B981, #34D399); color: white; text-decoration: none; padding: 12px; margin: 6px 0; border-radius: 10px;">
-                    📅 Calendar View
-                </a>
+            <div class="card admin-section" style="background: linear-gradient(135deg, #fffdf0, #fef9c3); border: 1px solid rgba(255, 215, 0, 0.4);">
+                <h3 style="margin-bottom: 20px;"><i class="fa-solid fa-bolt" style="color: var(--accent);"></i> Quick Actions</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <a href="/admin/auto-seed" class="btn-primary" style="background: linear-gradient(135deg, #6366F1, #8B5CF6); text-align: center; font-size: 14px;">
+                        🤖 Auto-Seed
+                    </a>
+                    <a href="/admin/create-brackets" class="btn-primary" style="background: linear-gradient(135deg, #FFD700, #F59E0B); color: var(--dark) !important; text-align: center; font-size: 14px;">
+                        🏆 Create Brackets
+                    </a>
+                    <a href="/admin/rate-player" class="btn-primary" style="background: linear-gradient(135deg, #B91C1C, #EF4444); color: white !important; text-align: center; font-size: 14px;">
+                        ⭐ Rate Player
+                    </a>
+                    <a href="/admin/attendance" class="btn-primary" style="background: linear-gradient(135deg, #10B981, #34D399); text-align: center; font-size: 14px;">
+                        📊 Attendance
+                    </a>
+                    <a href="/admin/bulk-checkin" class="btn-primary" style="background: linear-gradient(135deg, #6366F1, #8B5CF6); text-align: center; font-size: 14px;">
+                        ✅ Bulk Check-in
+                    </a>
+                    <a href="/admin/calendar" class="btn-primary" style="background: linear-gradient(135deg, #0033A0, #0072CE); text-align: center; font-size: 14px;">
+                        📅 Calendar
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-
-    <footer>
-        <div class="container">
-            <p>🏸 NYIT Badminton Team Manager &bull; New York Institute of Technology</p>
-        </div>
-    </footer>
-</body>
-</html>
+{% endblock %}

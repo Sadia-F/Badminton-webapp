@@ -1,52 +1,35 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance - NYIT Badminton</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-    <nav>
-        <div class="container">
-            <a href="/" class="logo">🏸 <span>Team</span> Manager</a>
-            <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="/dashboard">Dashboard</a>
-                <a href="/admin" class="admin-link">⭐ Admin</a>
-                <a href="/logout" class="logout-link">🚪 Logout</a>
-            </div>
-        </div>
-    </nav>
+{% extends "base.html" %}
 
+{% block title %}Attendance - NYIT Badminton{% endblock %}
+
+{% block content %}
     <div class="container">
         <div class="section">
-            <h2>📊 Attendance Records</h2>
-            
+            <h2 style="text-align: center; margin-bottom: 40px;">📊 Attendance Records</h2>
+
             {% if attendance_by_date %}
-                {% for date, players in attendance_by_date.items()|sort(reverse=true) %}
-                    <div class="card">
-                        <h3>📅 {{ date }}</h3>
-                        <p><strong>Total Check-ins:</strong> {{ players|length }}</p>
-                        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
-                            {% for player in players %}
-                                <span style="background: #d4edda; padding: 5px 12px; border-radius: 20px; font-size: 14px;">
-                                    ✅ {{ player }}
-                                </span>
-                            {% endfor %}
+                <div class="dashboard-grid">
+                    {% for date, players in attendance_by_date.items()|sort(reverse=true) %}
+                        <div class="card">
+                            <h3 style="margin-bottom: 10px;">📅 {{ date }}</h3>
+                            <p style="color: var(--text-muted); margin-bottom: 15px;">
+                                <strong style="color: var(--text-main);">Total Check-ins:</strong> {{ players|length }}
+                            </p>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                {% for player in players %}
+                                    <span class="role-badge player" style="font-size: 12px; padding: 5px 12px;">
+                                        ✅ {{ player }}
+                                    </span>
+                                {% endfor %}
+                            </div>
                         </div>
-                    </div>
-                {% endfor %}
+                    {% endfor %}
+                </div>
             {% else %}
-                <p>No attendance records yet.</p>
+                <div class="card" style="text-align: center; grid-column: 1 / -1;">
+                    <p>No attendance records yet.</p>
+                </div>
             {% endif %}
         </div>
     </div>
-
-    <footer>
-        <div class="container">
-            <p>🏸 NYIT Badminton Team Manager &bull; New York Institute of Technology</p>
-        </div>
-    </footer>
-</body>
-</html>
+{% endblock %}

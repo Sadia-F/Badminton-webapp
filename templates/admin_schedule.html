@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Schedule - NYIT Badminton{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="section">
+            <h2 style="text-align: center; margin-bottom: 40px;">📅 Manage Practice Schedule</h2>
+
+            <div style="max-width: 700px; margin: 0 auto 40px auto;">
+                <form method="POST" class="card">
+                    <h3 style="text-align: center; margin-bottom: 20px;">Add/Update Schedule</h3>
+                    <div class="form-group">
+                        <label>Day of Week</label>
+                        <select name="day" required>
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                        </select>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Start Time</label>
+                            <input type="time" name="start_time" required>
+                        </div>
+                        <div class="form-group">
+                            <label>End Time</label>
+                            <input type="time" name="end_time" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" name="location" placeholder="e.g. Court A - Main Hall">
+                    </div>
+                    <div style="margin-bottom: 20px; display: flex; justify-content: center;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="is_active" checked> Active Schedule
+                        </label>
+                    </div>
+                    <button type="submit" class="btn-primary" style="width: 100%; padding: 12px; font-size: 16px; cursor: pointer; border-radius: 50px;">
+                        Save Schedule
+                    </button>
+                </form>
+            </div>
+
+            <h3 style="text-align: center; margin-bottom: 20px;">Current Schedule</h3>
+            <div class="dashboard-grid">
+                {% if schedules %}
+                    {% for sched in schedules %}
+                        <div class="card" style="display: flex; justify-content: space-between; align-items: center; gap: 20px;">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <strong style="font-size: 18px;">{{ sched.day }}</strong>
+                                    <span class="role-badge {% if sched.is_active %}player{% else %}admin{% endif %}" style="font-size: 10px;">
+                                        {{ 'Active' if sched.is_active else 'Inactive' }}
+                                    </span>
+                                </div>
+                                <p style="margin: 5px 0;">⏰ {{ sched.start_time }} - {{ sched.end_time }}</p>
+                                <p style="margin: 5px 0; color: var(--text-muted);">📍 {{ sched.location }}</p>
+                            </div>
+                            <a href="/admin/schedule/delete/{{ sched.id }}" class="logout-link" style="text-decoration: none; font-weight: bold;" onclick="return confirm('Delete this schedule?')">🗑️ Delete</a>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="card" style="text-align: center; grid-column: 1 / -1;">
+                        <p>No schedules set yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

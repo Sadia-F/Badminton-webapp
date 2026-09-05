@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.full_name }}'s Profile - NYIT Badminton{% endblock %}
+
+{% block head %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="section">
+            <div class="profile-header" style="display: flex; align-items: center; gap: 30px; margin-bottom: 40px; background: var(--bg-card); padding: 40px; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); border: 1px solid var(--border-color);">
+                <div class="profile-image" style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; border: 4px solid var(--nyit-blue);">
+                    <img src="/static/images/{{ user.player_image }}" alt="{{ user.full_name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div>
+                    <h1 style="margin: 0; font-size: 36px;">{{ user.full_name }}</h1>
+                    <p style="color: var(--text-muted); font-size: 18px; margin: 5px 0 15px;">{{ user.role|capitalize }}</p>
+                    <span class="role-badge {% if user.role == 'admin' %}admin{% elif user.role == 'captain' %}admin{% else %}player{% endif %}">
+                        {{ '👑 Team Admin' if user.role == 'admin' else '🏸 Team Captain' if user.role == 'captain' else '🏸 Team Player' }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="dashboard-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="card" style="text-align: center;">
+                    <h3 style="color: var(--text-muted); font-size: 14px; text-transform: uppercase; margin-bottom: 10px;">Total Matches</h3>
+                    <div style="font-size: 32px; font-weight: 800; color: var(--nyit-blue);">{{ total_matches }}</div>
+                </div>
+                <div class="card" style="text-align: center;">
+                    <h3 style="color: var(--text-muted); font-size: 14px; text-transform: uppercase; margin-bottom: 10px;">Total Wins</h3>
+                    <div style="font-size: 32px; font-weight: 800; color: var(--success);">{{ wins }}</div>
+                </div>
+                <div class="card" style="text-align: center;">
+                    <h3 style="color: var(--text-muted); font-size: 14px; text-transform: uppercase; margin-bottom: 10px;">Win Rate</h3>
+                    <div style="font-size: 32px; font-weight: 800; color: var(--accent);">{{ win_rate }}%</div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; align-items: start;">
+                <div class="card">
+                    <h3 style="margin-bottom: 20px; text-align: center;"><i class="fa-solid fa-chart-pie" style="margin-right: 10px;"></i> Performance Radar</h3>
+                    <div style="max-width: 400px; margin: 0 auto;">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;"><i class="fa-solid fa-trophy" style="margin-right: 10px; color: var(--nyit-gold);"></i> Achievements</h3>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        {% for ach in achievements %}
+                            <div style="padding: 15px; background: var(--bg-main); border-radius: var(--radius-sm); border-left: 4px solid var(--nyit-gold);">
+                                <strong style="display: block; font-size: 15px;">{{ ach.title }}</strong>
+                                <span style="font-size: 13px; color: var(--text-muted);">{{ ach.description }}</span>
+                            </div>
+                        {% else %}
+                            <p style="text-align: center; color: var(--text-muted);">No achievements yet. Keep playing!</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['Smash', 'Net Play', 'Footwork', 'Consistency', 'Shot Variety'],
+                datasets: [{
+                    label: 'Skill Level',
+                    data: [{{ metrics.smash }}, {{ metrics.net }}, {{ metrics.footwork }}, {{ metrics.consistency }}, {{ metrics.variety }}],
+                    fill: true,
+                    backgroundColor: 'rgba(0, 51, 160, 0.2)',
+                    borderColor: 'rgb(0, 51, 160)',
+                    pointBackgroundColor: 'rgb(0, 51, 160)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(0, 51, 160)'
+                }]
+            },
+            options: {
+                scales: {
+                    r: {
+                        angleLines: { display: true },
+                        suggestedMin: 0,
+                        suggestedMax: 10,
+                        ticks: { stepSize: 2 }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    </script>
+{% endblock %}
