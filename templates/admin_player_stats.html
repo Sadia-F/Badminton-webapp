@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Stats - NYIT Badminton</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="/" class="logo">🏸 <span>Team</span> Manager</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/admin" class="admin-link">⭐ Admin</a>
+                <a href="/logout" class="logout-link">🚪 Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="section">
+            <h2>📊 Player Statistics</h2>
+            
+            <div class="card">
+                <h3>👤 {{ player.full_name }}</h3>
+                <p>@{{ player.username }}</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 28px;">⭐</div>
+                        <div>Avg Rating</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #0033A0;">{{ avg_rating }}</div>
+                    </div>
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 28px;">✅</div>
+                        <div>Check-ins</div>
+                        <div style="font-size: 24px; font-weight: bold; color: green;">{{ total_checkins }}</div>
+                    </div>
+                    <div style="background: #fff3e0; padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 28px;">🏆</div>
+                        <div>Wins</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #FFD700;">{{ wins }}</div>
+                    </div>
+                    <div style="background: #f3e5f5; padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 28px;">📊</div>
+                        <div>Win Rate</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #7B1FA2;">{{ win_rate }}%</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 30px;">Recent Performances</h3>
+            {% if performances %}
+                {% for perf in performances %}
+                    <div class="card">
+                        <p><strong>Rating:</strong> ⭐ {{ perf.rating }}/10</p>
+                        <p>Technique: {{ perf.technique }}/10 | Speed: {{ perf.speed }}/10 | Stamina: {{ perf.stamina }}/10 | Teamwork: {{ perf.teamwork }}/10</p>
+                        {% if perf.comments %}
+                            <p style="color: #666;">"{{ perf.comments }}"</p>
+                        {% endif %}
+                        <small>{{ perf.date.strftime('%B %d, %Y') }}</small>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No performances recorded.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>🏸 NYIT Badminton Team Manager &bull; New York Institute of Technology</p>
+        </div>
+    </footer>
+</body>
+</html>

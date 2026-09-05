@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar - NYIT Badminton</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="/" class="logo">🏸 <span>Team</span> Manager</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/admin" class="admin-link">⭐ Admin</a>
+                <a href="/logout" class="logout-link">🚪 Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="section">
+            <h2>📅 Availability Calendar</h2>
+            <p style="color: var(--gray); margin-bottom: 30px;">See which days are good for practice based on player availability</p>
+            
+            {% if date_availability %}
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    {% for date, data in date_availability.items()|sort %}
+                        <div class="card" style="text-align: center; {% if data.available / data.total > 0.5 %}border-left: 4px solid green;{% else %}border-left: 4px solid orange;{% endif %}">
+                            <strong>{{ date }}</strong>
+                            <p style="font-size: 24px; font-weight: bold; color: {% if data.available / data.total > 0.5 %}green{% else %}orange{% endif %};">
+                                {{ data.available }}/{{ data.total }}
+                            </p>
+                            <p style="font-size: 12px; color: #666;">
+                                {% if data.available / data.total > 0.5 %}
+                                    ✅ Good for practice
+                                {% else %}
+                                    ⚠️ Low availability
+                                {% endif %}
+                            </p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No availability data yet. Players need to set their availability.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>🏸 NYIT Badminton Team Manager &bull; New York Institute of Technology</p>
+        </div>
+    </footer>
+</body>
+</html>

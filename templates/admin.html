@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - NYIT Badminton</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="/" class="logo">🏸 <span>Team</span> Manager</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/admin" class="admin-link">⭐ Admin</a>
+                <a href="/logout" class="logout-link">🚪 Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="admin-header">
+            <h1>⭐ Admin Panel</h1>
+            <p style="color: var(--gray);">Manage your NYIT badminton team</p>
+        </div>
+
+        <div class="admin-grid">
+            <div class="admin-card">
+                <h3>👥 Players <span class="count">{{ players|length }}</span></h3>
+                {% for player in players %}
+                    <div class="player-item">
+                        <a href="/admin/player-stats/{{ player.id }}" style="text-decoration: none; color: var(--dark);">
+                            {{ player.full_name }}
+                        </a>
+                        {% if player.is_admin %}
+                            <span class="admin-star">⭐</span>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="admin-card">
+                <h3>📢 Announcements <span class="count">{{ announcements|length }}</span></h3>
+                {% for ann in announcements[:5] %}
+                    <div class="announcement-item">
+                        <strong>{{ ann.title }}</strong>
+                        <span class="date">{{ ann.date_posted.strftime('%B %d, %Y') }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="admin-card">
+                <h3>✅ Today's Check-ins <span class="count">{{ checkins|length }}</span></h3>
+                {% for checkin in checkins %}
+                    <div class="player-item">
+                        {{ checkin.player.full_name }}
+                        <span style="font-size: 12px; color: green;">✅ {{ checkin.check_in_time.strftime('%I:%M %p') }}</span>
+                    </div>
+                {% else %}
+                    <p>No check-ins today.</p>
+                {% endfor %}
+            </div>
+
+            <div class="admin-card quick-actions">
+                <h3>⚡ Quick Actions</h3>
+                <a href="/admin/create-brackets" class="btn-primary" style="display: block; text-align: center; background: linear-gradient(135deg, #0033A0, #0072CE); color: white; text-decoration: none; padding: 12px; margin: 6px 0; border-radius: 10px;">
+                    🏆 Create Brackets
+                </a>
+                <a href="/admin/attendance" class="btn-primary" style="display: block; text-align: center; background: linear-gradient(135deg, #FFD700, #F59E0B); color: #1A1A2E; text-decoration: none; padding: 12px; margin: 6px 0; border-radius: 10px;">
+                    📊 View Attendance
+                </a>
+                <a href="/admin/calendar" class="btn-primary" style="display: block; text-align: center; background: linear-gradient(135deg, #10B981, #34D399); color: white; text-decoration: none; padding: 12px; margin: 6px 0; border-radius: 10px;">
+                    📅 Calendar View
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>🏸 NYIT Badminton Team Manager &bull; New York Institute of Technology</p>
+        </div>
+    </footer>
+</body>
+</html>

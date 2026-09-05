@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Availability - NYIT Badminton</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="/" class="logo">🏸 <span>Team</span> Manager</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/dashboard">Dashboard</a>
+                {% if current_user.is_admin %}
+                    <a href="/admin" class="admin-link">⭐ Admin</a>
+                {% endif %}
+                <a href="/logout" class="logout-link">🚪 Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="section">
+            <h2>📅 Your Availability</h2>
+            
+            <div style="max-width: 600px; margin-bottom: 30px;">
+                <form method="POST" class="card">
+                    <h3>Add Availability</h3>
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Start Time</label>
+                        <input type="time" name="start_time" required>
+                    </div>
+                    <div class="form-group">
+                        <label>End Time</label>
+                        <input type="time" name="end_time" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status">
+                            <option value="available">✅ Available</option>
+                            <option value="unavailable">❌ Unavailable</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #0033A0, #0072CE); color: white;">
+                        Add Availability
+                    </button>
+                </form>
+            </div>
+
+            <h3>Your Availability History</h3>
+            {% if availabilities %}
+                {% for av in availabilities %}
+                    <div class="card">
+                        <strong>{{ av.date }}</strong> - {{ av.start_time }} to {{ av.end_time }}
+                        <span style="color: {% if av.status == 'available' %}green{% else %}red{% endif %};">
+                            {{ '✅ Available' if av.status == 'available' else '❌ Unavailable' }}
+                        </span>
+                        <a href="/availability/delete/{{ av.id }}" 
+                           style="color: red; float: right;" 
+                           onclick="return confirm('Delete this availability?')">
+                            ✖ Delete
+                        </a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No availability set yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>🏸 NYIT Badminton Team Manager &bull; New York Institute of Technology</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Announcements - Badminton Team Manager</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="/" class="logo">🏸 Team Manager</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/announcements">Announcements</a>
+                <a href="/schedule">Schedule</a>
+                <a href="/achievements">Achievements</a>
+                <a href="/team">Team</a>
+                {% if current_user.is_authenticated %}
+                    <a href="/dashboard">Dashboard</a>
+                    <a href="/logout" style="color: #ff6b6b;">Logout</a>
+                {% else %}
+                    <a href="/login" class="btn-primary">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="section">
+            <h2>📢 All Announcements</h2>
+            <div class="announcements">
+                {% if announcements %}
+                    {% for ann in announcements %}
+                        <div class="card">
+                            <h3>{{ ann.title }}</h3>
+                            <p>{{ ann.content }}</p>
+                            <small>{{ ann.date_posted.strftime('%B %d, %Y') }}</small>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No announcements yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

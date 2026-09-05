@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice Schedule - Badminton Team Manager</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="/" class="logo">🏸 Team Manager</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/announcements">Announcements</a>
+                <a href="/schedule">Schedule</a>
+                <a href="/achievements">Achievements</a>
+                <a href="/team">Team</a>
+                {% if current_user.is_authenticated %}
+                    <a href="/dashboard">Dashboard</a>
+                    <a href="/logout" style="color: #ff6b6b;">Logout</a>
+                {% else %}
+                    <a href="/login" class="btn-primary">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="section">
+            <h2>📅 Practice Schedule</h2>
+            <div class="schedule-grid">
+                {% if schedules %}
+                    {% for schedule in schedules %}
+                        <div class="schedule-card">
+                            <div class="day">{{ schedule.day }}</div>
+                            <div class="time">🕐 {{ schedule.start_time }} - {{ schedule.end_time }}</div>
+                            <div class="location">📍 {{ schedule.location }}</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No practice schedules set.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
