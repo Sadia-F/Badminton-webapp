@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Leaderboard - NYIT Badminton{% endblock %}
+
+{% block content %}
+    <div class="page-head">
+        <div>
+            <div class="eyebrow"><i class="fa-solid fa-ranking-star"></i> Hall of Fame</div>
+            <h1>Team Leaderboard</h1>
+            <p class="subtitle">Ranked by wins, win rate, and skill rating. Attendance streaks count too!</p>
+        </div>
+    </div>
+
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <div style="overflow-x: auto;">
+            <table class="lb-table">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;"></th>
+                        <th>Player</th>
+                        <th class="num">Wins 🏆</th>
+                        <th class="num">Win Rate</th>
+                        <th class="num">Skill Rating</th>
+                        <th class="num">Check-ins</th>
+                        <th class="num">Streak 🔥</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in rows %}
+                        <tr class="{{ 'lb-top' if loop.index <= 3 else '' }}" onclick="location.href='/profile/{{ r.username }}'">
+                            <td>
+                                {% if loop.index == 1 %}
+                                    <span class="medal gold">🥇</span>
+                                {% elif loop.index == 2 %}
+                                    <span class="medal silver">🥈</span>
+                                {% elif loop.index == 3 %}
+                                    <span class="medal bronze">🥉</span>
+                                {% else %}
+                                    <span class="lb-rank">{{ loop.index }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <span class="avatar {% if r.role in ['admin', 'captain'] %}gold{% endif %}" style="width: 38px; height: 38px; font-size: 15px;">{{ r.name[:1] }}</span>
+                                    <div>
+                                        <strong style="font-size: 14.5px;">{{ r.name }}</strong>
+                                        <div class="text-muted" style="font-size: 12px;">@{{ r.username }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="num"><strong>{{ r.wins }}</strong></td>
+                            <td class="num">{{ r.win_rate }}%</td>
+                            <td class="num">{{ r.rating }}/5</td>
+                            <td class="num">{{ r.checkins }}</td>
+                            <td class="num">
+                                {% if r.streak >= 3 %}
+                                    <span class="streak glow">🔥 {{ r.streak }} days</span>
+                                {% elif r.streak > 0 %}
+                                    <span class="streak">🔥 {{ r.streak }} day{{ '' if r.streak == 1 else 's' }}</span>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card text-center" style="margin-top: 28px; background: linear-gradient(135deg, #FFFDF2, #FFF8DA); border-color: rgba(255,215,0,0.4);">
+        <p style="font-weight: 700; color: #7A5C00;">
+            🏆 First place this season? Keep checking in, winning matches, and rating your performance to climb the ranks!
+        </p>
+    </div>
+{% endblock %}

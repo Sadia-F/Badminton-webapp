@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Weekly MVP - NYIT Badminton{% endblock %}
+
+{% block content %}
+    <div class="page-head">
+        <div>
+            <div class="eyebrow"><i class="fa-solid fa-crown"></i> Player of the Week</div>
+            <h1>Weekly MVP Voting</h1>
+            <p class="subtitle">Vote once per week for the teammate who deserves the crown. Week of {{ week }}.</p>
+        </div>
+    </div>
+
+    {% if current_user.is_authenticated %}
+    <div class="card" style="margin-bottom: 36px;">
+        <h3 style="margin-bottom: 4px;">🏸 Cast your vote</h3>
+        <p class="text-muted" style="margin-bottom: 20px; font-size: 13.5px;">
+            You can change your vote any time during the week. {% if my_vote %}You've voted — pick again to change it. ✅{% endif %}
+        </p>
+        <div class="dashboard-grid">
+            {% for player in all_players() %}
+                {% set has_vote = player.id == my_vote %}
+                <div class="dashboard-card {% if has_vote %}mvp-voted{% endif %}" onclick="document.getElementById('mvp-form-{{ player.id }}').submit()">
+                    <div class="icon" style="{% if has_vote %}background: linear-gradient(135deg, var(--nyit-gold), #FFB300); color: #5C3A00;{% endif %}">
+                        {% if player.role == 'admin' %}👑{% elif player.role == 'captain' %}⭐{% else %}🏸{% endif %}
+                    </div>
+                    <h3>{{ player.full_name }}</h3>
+                    <p>@{{ player.username }}</p>
+                    {% if has_vote %}
+                        <span class="role-badge admin" onclick="event.stopPropagation()">👑 Your Vote</span>
+                    {% else %}
+                        <span class="role-badge player">Vote for MVP</span>
+                    {% endif %}
+                    <form id="mvp-form-{{ player.id }}" method="POST" action="/mvp/vote/{{ player.id }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+        <div class="card text-center" style="margin-bottom: 36px;">
+            <p class="text-muted"><a href="/login" style="font-weight: 800;">Log in</a> to vote for your MVP this week.</p>
+        </div>
+    {% endif %}
+
+    <div class="page-head" style="margin-bottom: 0;">
+        <div>
+            <div class="eyebrow"><i class="fa-solid fa-chart-column"></i> Live Tally</div>
+            <h1>Current standings</h1>
+        </div>
+    </div>
+    {% if ranked %}
+        <div class="dashboard-grid">
+            {% for player, count in ranked %}
+                <div class="card text-center" style="border-color: {% if loop.first %}rgba(255,215,0,0.6); box-shadow: 0 14px 34px -14px rgba(255,190,0,0.5);{% else %}var(--border-color);{% endif %}">
+                    {% if loop.first %}<div style="font-size: 44px; margin-bottom: 6px;">👑</div>{% endif %}
+                    <h3 style="margin-bottom: 2px;">{{ player.full_name }}</h3>
+                    <div class="big-number" style="color: var(--primary);">{{ count }}</div>
+                    <span class="text-muted" style="font-size: 13px;">vote{{ '' if count == 1 else 's' }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="background: var(--bg-soft); border: 1px dashed var(--border-strong); border-radius: var(--radius-lg); padding: 48px; text-align: center; margin: 0 0 36px;">
+            <div style="font-size: 44px; margin-bottom: 12px;">🗳️</div>
+            <h3>No votes yet this week</h3>
+            <p class="text-muted">Be the first to crown your MVP!</p>
+        </div>
+    {% endif %}
+
+    {% if past_weeks %}
+    <div class="page-head" style="margin-top: 20px;">
+        <div>
+            <div class="eyebrow"><i class="fa-solid fa-clock-rotate-left"></i> History</div>
+            <h1>Past winners</h1>
+        </div>
+    </div>
+    <div class="dashboard-grid">
+        {% for ws, list in past_weeks.items() %}
+            <div class="card">
+                <h3 style="margin-bottom: 12px;">📅 {{ ws }}</h3>
+                {% for player, count in list[:3] %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
+                        <strong>{{ player.full_name }}</strong>
+                        <span class="pill" style="padding: 4px 10px; font-size: 12px;">{{ count }} vote{{ '' if count == 1 else 's' }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endblock %}

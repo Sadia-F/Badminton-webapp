@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Live Roster - NYIT Badminton{% endblock %}
+
+{% block content %}
+    <input type="hidden" id="roster-csrf" value="{{ csrf_token() }}">
+    <div class="page-head">
+        <div>
+            <div class="eyebrow"><i class="fa-solid fa-id-card-clip"></i> Command Center</div>
+            <h1>Live Team Roster</h1>
+            <p class="subtitle">One-tap check-in / check-out · auto-refreshes every 15 seconds</p>
+        </div>
+        <a href="/admin/attendance/export" class="btn-ghost"><i class="fa-solid fa-file-csv"></i> Export CSV</a>
+    </div>
+
+    <div class="stats-row" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="stat-card green">
+            <div class="sc-icon"><i class="fa-solid fa-signal"></i></div>
+            <div>
+                <div class="sc-num"><span id="on-court-count" style="opacity: 0;">–</span></div>
+                <div class="sc-lbl">On court right now</div>
+            </div>
+        </div>
+        <div class="stat-card blue">
+            <div class="sc-icon"><i class="fa-solid fa-user-check"></i></div>
+            <div>
+                <div class="sc-num">{{ present }}</div>
+                <div class="sc-lbl">Checked in today</div>
+            </div>
+        </div>
+        <div class="stat-card gold">
+            <div class="sc-icon"><i class="fa-solid fa-users"></i></div>
+            <div>
+                <div class="sc-num">{{ total }}</div>
+                <div class="sc-lbl">Total athletes</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="roster-tools">
+        <input type="search" id="roster-search" placeholder="🔍 Search by name or @username..." class="roster-search">
+        <div class="roster-filters" id="roster-filters">
+            <button class="filter-chip active" data-filter="all">All</button>
+            <button class="filter-chip ok" data-filter="in">On Court</button>
+            <button class="filter-chip no" data-filter="out">Off Court</button>
+        </div>
+    </div>
+
+    <div class="roster-grid" id="roster-grid">
+        {% for row in rows %}
+            <div class="roster-card" data-id="{{ row.id }}" data-status="{{ row.status }}"
+                 data-name="{{ row.name|lower }}" data-username="{{ row.username|lower }}">
+                <div class="rost-top">
+                    <div class="rost-avatar">
+                        {% set img = avatar_url(row) %}
+                        {% if img %}
+                            <img src="{{ img }}" alt="{{ row.name }}">
+                        {% else %}
+                            <span class="{% if row.role in ['admin', 'captain'] %}gold{% endif %}">{{ row.name[:1] }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="rost-info">
+                        <strong class="rost-name">{{ row.name }}</strong>
+                        <span class="rost-user">@{{ row.username }}</span>
+                        <span class="role-badge {% if row.role in ['admin', 'captain'] %}admin{% else %}player{% endif %}" style="font-size: 11px; padding: 3px 9px;">
+                            {% if row.role == 'admin' %}👑 Admin{% elif row.role == 'captain' %}⭐ Captain{% else %}🏸 Player{% endif %}
+                        </span>
+                    </div>
+                    <div class="rost-status" data-status="{{ row.status }}" data-time="{{ row.time or '' }}">
+                        <span class="pulse-dot"></span>
+                        <span class="status-text">—</span>
+                        <span class="status-time"></span>
+                    </div>
+                </div>
+                <div class="rost-foot">
+                    <span class="rost-streak">🔥 {{ row.streak }} day{{ '' if row.streak == 1 else 's' }}</span>
+                    <a href="/profile/{{ row.username }}" class="btn-ghost" style="padding: 8px 14px;">View</a>
+                    <button class="roster-btn" data-id="{{ row.id }}">⋯</button>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div id="roster-empty" class="card text-center" style="display: none; margin-top: 24px;">
+        <p class="text-muted">No athletes match your search.</p>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        const ROSTER_STATE = {};
+
+        function rosterCard(id) {
+            return document.querySelector(`.roster-card[data-id="${id}"]`);
+        }
+        function applyLive(id, status, time) {
+            const card = rosterCard(id);
+            if (!card) return;
+            ROSTER_STATE[id] = { status, time };
+            card.dataset.status = status;
+            const box = card.querySelector('.rost-status');
+            box.dataset.status = status;
+            box.querySelector('.status-text').textContent = status === 'in' ? 'On Court' : 'Off Court';
+            box.querySelector('.status-time').textContent = status === 'in' ? '⏱ ' + (time || '') : '';
+            const btn = card.querySelector('.roster-btn');
+            btn.innerHTML = status === 'in'
+                ? '<i class="fa-solid fa-arrow-right-from-bracket"></i> Check Out'
+                : '<i class="fa-solid fa-right-to-bracket"></i> Check In';
+            btn.classList.toggle('in', status === 'in');
+            refreshCounts();
+        }
+
+        function refreshCounts() {
+            const count = Object.values(ROSTER_STATE).filter(s => s.status === 'in').length;
+            const el = document.getElementById('on-court-count');
+            if (el) { el.textContent = count; el.style.opacity = '1'; }
+            const chip = document.querySelector('[data-filter="in"]');
+            if (chip) chip.textContent = `On Court (${count})`;
+        }
+
+        async function pollRoster() {
+            try {
+                const r = await fetch('/api/roster');
+                const j = await r.json();
+                if (!j.ok) return;
+                for (const p of j.players) {
+                    const card = rosterCard(p.id);
+                    if (card) applyLive(p.id, p.status, p.time);
+                }
+            } catch (e) { /* silent */ }
+        }
+
+        document.querySelectorAll('.roster-card').forEach(card => {
+            const id = card.dataset.id;
+            const status = card.dataset.status;
+            const time = card.querySelector('.rost-status').dataset.time || '';
+            ROSTER_STATE[id] = { status, time };
+            applyLive(id, status, time);
+            card.querySelector('.roster-btn').addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const btn = e.currentTarget;
+                btn.disabled = true; btn.style.opacity = '0.6';
+                const csrf = document.getElementById('roster-csrf').value;
+                const r = await fetch(`/roster/toggle/${id}`, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-Token': csrf, 'Content-Type': 'application/json' },
+                    body: '{}'
+                }).catch(() => null);
+                btn.disabled = false; btn.style.opacity = '1';
+                if (r && r.ok) {
+                    const j = await r.json();
+                    applyLive(id, j.state, j.time);
+                    window.toast(j.state === 'in' ? `🎾 ${j.name} is on court!` : `👋 ${j.name} checked out.`,
+                                 j.state === 'in' ? 'success' : 'info');
+                    window.playBlip();
+                } else {
+                    window.toast('Something went wrong. Refresh and try again.', 'danger');
+                }
+            });
+        });
+
+        // search + filter
+        const search = document.getElementById('roster-search');
+        const filters = document.getElementById('roster-filters');
+        function applyFilter() {
+            const q = (search.value || '').toLowerCase().trim();
+            const f = filters.querySelector('.filter-chip.active').dataset.filter;
+            let visible = 0;
+            document.querySelectorAll('.roster-card').forEach(card => {
+                const matchQ = card.dataset.name.includes(q) || card.dataset.username.includes(q);
+                const matchF = f === 'all' || card.dataset.status === f;
+                const show = matchQ && matchF;
+                card.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+            document.getElementById('roster-empty').style.display = visible ? 'none' : 'block';
+        }
+        search.addEventListener('input', applyFilter);
+        filters.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                filters.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                applyFilter();
+            });
+        });
+
+        pollRoster();
+        setInterval(pollRoster, 15000);
+    </script>
+{% endblock %}

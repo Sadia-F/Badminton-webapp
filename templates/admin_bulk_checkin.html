@@ -9,6 +9,7 @@
             <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">Quickly mark multiple players as present</p>
 
             <form method="POST" class="card" style="max-width: 800px; margin: 0 auto;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-group" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 30px;">
                     <label style="margin: 0;">Attendance Date:</label>
                     <input type="date" name="date" value="{{ today }}" required style="width: auto;">

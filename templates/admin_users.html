@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users - NYIT Badminton{% endblock %}
+
+{% block content %}
+    <div class="page-head">
+        <div>
+            <div class="eyebrow"><i class="fa-solid fa-user-gear"></i> Staff Access</div>
+            <h1>Manage Users</h1>
+            <p class="subtitle">Change roles, reset passwords, or remove players.</p>
+        </div>
+    </div>
+
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <div style="overflow-x: auto;">
+            <table class="lb-table">
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Role</th>
+                        <th>Reset Password</th>
+                        <th style="width: 120px;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <span class="avatar {% if u.role in ['admin', 'captain'] %}gold{% endif %}" style="width: 38px; height: 38px; font-size: 15px;">{{ u.full_name[:1] }}</span>
+                                    <div>
+                                        <strong>{{ u.full_name }}</strong>
+                                        <div class="text-muted" style="font-size: 12px;">@{{ u.username }} · {{ u.email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <form method="POST" action="/admin/users/update/{{ u.id }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <select name="role" onchange="this.form.submit()" {% if u.id == current_user.id %}disabled{% endif %} style="padding: 8px; border-radius: 10px; border: 1.5px solid var(--border-color); font-weight: 700;">
+                                        <option value="admin" {% if u.role == 'admin' %}selected{% endif %}>👑 Admin</option>
+                                        <option value="captain" {% if u.role == 'captain' %}selected{% endif %}>⭐ Captain</option>
+                                        <option value="player" {% if u.role == 'player' %}selected{% endif %}>🏸 Player</option>
+                                    </select>
+                                </form>
+                            </td>
+                            <td>
+                                <form method="POST" action="/admin/users/update/{{ u.id }}" style="display: flex; gap: 8px; align-items: center;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="role" value="{{ u.role }}">
+                                    <input type="password" name="password" placeholder="New password" minlength="6" style="padding: 8px; border-radius: 10px; border: 1.5px solid var(--border-color); width: 160px;">
+                                    <button type="submit" class="btn-ghost" style="padding: 8px 14px; font-size: 12.5px;">Set</button>
+                                </form>
+                            </td>
+                            <td>
+                                {% if u.id != current_user.id %}
+                                <form method="POST" action="/admin/users/delete/{{ u.id }}" style="margin: 0;" onsubmit="return confirm('Remove {{ u.full_name }}? This deletes their stats too.')">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="logout-link">🗑️ Remove</button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

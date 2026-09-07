@@ -3,90 +3,84 @@
 {% block title %}Admin Panel - NYIT Badminton{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <div class="dashboard-header">
-            <h1 style="display: flex; align-items: center; gap: 15px;">
-                <i class="fa-solid fa-user-shield" style="color: var(--secondary);"></i>
-                Admin Control Suite
-            </h1>
-            <p style="color: var(--text-muted);">Centralized management for NYIT Badminton players and operations</p>
+    <div class="page-head">
+        <div>
+            <div class="eyebrow"><i class="fa-solid fa-user-shield"></i> Staff Access</div>
+            <h1>Admin Control Suite</h1>
+            <p class="subtitle">Centralized management for NYIT Badminton players and operations</p>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                <h3 style="margin: 0;"><i class="fa-solid fa-users" style="margin-right: 10px; color: var(--primary);"></i> Roster</h3>
+                <span class="role-badge player">{{ players|length }} total</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px; max-height: 360px; overflow-y: auto;">
+                {% for player in players %}
+                    <div class="admin-item" onclick="location.href='/admin/player-stats/{{ player.id }}'">
+                        <span style="display: flex; align-items: center; gap: 10px;">
+                            <span class="avatar {% if player.role in ['admin', 'captain'] %}gold{% endif %}" style="width: 34px; height: 34px; font-size: 13px;">{{ player.full_name[:1] }}</span>
+                            <span style="font-weight: 600;">{{ player.full_name }}</span>
+                        </span>
+                        {% if player.role in ['admin', 'captain'] %}
+                            <i class="fa-solid fa-star" style="color: var(--secondary);"></i>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
         </div>
 
-        <div class="dashboard-grid">
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3 style="margin: 0;"><i class="fa-solid fa-users" style="margin-right: 10px;"></i> Players</h3>
-                    <span class="role-badge player">{{ players|length }}</span>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    {% for player in players %}
-                        <div class="player-item" style="padding: 10px 15px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center; transition: var(--transition); cursor: pointer;" onclick="location.href='/admin/player-stats/{{ player.id }}'">
-                            <span style="font-weight: 500; color: var(--text-main);">{{ player.full_name }}</span>
-                            {% if player.role in ['admin', 'captain'] %}
-                                <span class="admin-star" style="color: var(--secondary);">⭐</span>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                </div>
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                <h3 style="margin: 0;"><i class="fa-solid fa-bullhorn" style="margin-right: 10px; color: var(--primary);"></i> Announcements</h3>
+                <span class="role-badge player">{{ announcements|length }}</span>
             </div>
-
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3 style="margin: 0;"><i class="fa-solid fa-bullhorn" style="margin-right: 10px;"></i> Announcements</h3>
-                    <span class="role-badge player">{{ announcements|length }}</span>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    {% for ann in announcements[:5] %}
-                        <div class="announcement-item" style="padding: 12px; background: var(--bg-main); border-left: 4px solid var(--nyit-blue); border-radius: 4px;">
-                            <strong style="display: block; font-size: 14px;">{{ ann.title }}</strong>
-                            <span style="font-size: 11px; color: var(--text-muted);">{{ ann.date_posted.strftime('%B %d, %Y') }}</span>
-                        </div>
-                    {% endfor %}
-                    <a href="/admin/announcements" style="display: block; text-align: center; margin-top: 10px; text-decoration: none; color: var(--nyit-blue); font-weight: 600; font-size: 13px;">
-                        Manage All Announcements <i class="fa-solid fa-arrow-right"></i>
-                    </a>
-                </div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                {% for ann in announcements[:5] %}
+                    <div class="admin-item" style="justify-content: flex-start; cursor: default;">
+                        <span style="font-weight: 600; font-size: 14px;">{{ ann.title }}</span>
+                        <small class="text-muted" style="margin-left: auto;">{{ ann.date_posted.strftime('%b %d, %Y') }}</small>
+                    </div>
+                {% endfor %}
+                <a href="/admin/announcements" class="btn-ghost" style="justify-content: center; margin-top: 8px;">
+                    Manage All Announcements <i class="fa-solid fa-arrow-right"></i>
+                </a>
             </div>
+        </div>
 
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3 style="margin: 0;"><i class="fa-solid fa-check-double" style="margin-right: 10px;"></i> Daily Check-ins</h3>
-                    <span class="role-badge player">{{ checkins|length }}</span>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    {% for checkin in checkins %}
-                        <div class="player-item" style="padding: 10px 15px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: 500;">{{ checkin.player.full_name }}</span>
-                            <span style="font-size: 12px; color: var(--success); font-weight: 700;">✅ {{ checkin.check_in_time.strftime('%I:%M %p') }}</span>
-                        </div>
-                    {% else %}
-                        <p style="color: var(--text-muted); text-align: center; padding: 20px;">No check-ins today.</p>
-                    {% endfor %}
-                </div>
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                <h3 style="margin: 0;"><i class="fa-solid fa-check-double" style="margin-right: 10px; color: var(--primary);"></i> Today's Check-ins</h3>
+                <span class="role-badge player">{{ checkins|length }}</span>
             </div>
+            <div style="display: flex; flex-direction: column; gap: 8px; max-height: 360px; overflow-y: auto;">
+                {% for checkin in checkins %}
+                    <div class="admin-item" style="cursor: default;">
+                        <span style="font-weight: 600;">{{ checkin.player.full_name }}</span>
+                        <span style="font-size: 12px; color: var(--success); font-weight: 800;">✅ {{ checkin.check_in_time.strftime('%I:%M %p') }}</span>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center" style="padding: 20px;">No check-ins yet today.</p>
+                {% endfor %}
+            </div>
+        </div>
 
-            <div class="card admin-section" style="background: linear-gradient(135deg, #fffdf0, #fef9c3); border: 1px solid rgba(255, 215, 0, 0.4);">
-                <h3 style="margin-bottom: 20px;"><i class="fa-solid fa-bolt" style="color: var(--accent);"></i> Quick Actions</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                    <a href="/admin/auto-seed" class="btn-primary" style="background: linear-gradient(135deg, #6366F1, #8B5CF6); text-align: center; font-size: 14px;">
-                        🤖 Auto-Seed
-                    </a>
-                    <a href="/admin/create-brackets" class="btn-primary" style="background: linear-gradient(135deg, #FFD700, #F59E0B); color: var(--dark) !important; text-align: center; font-size: 14px;">
-                        🏆 Create Brackets
-                    </a>
-                    <a href="/admin/rate-player" class="btn-primary" style="background: linear-gradient(135deg, #B91C1C, #EF4444); color: white !important; text-align: center; font-size: 14px;">
-                        ⭐ Rate Player
-                    </a>
-                    <a href="/admin/attendance" class="btn-primary" style="background: linear-gradient(135deg, #10B981, #34D399); text-align: center; font-size: 14px;">
-                        📊 Attendance
-                    </a>
-                    <a href="/admin/bulk-checkin" class="btn-primary" style="background: linear-gradient(135deg, #6366F1, #8B5CF6); text-align: center; font-size: 14px;">
-                        ✅ Bulk Check-in
-                    </a>
-                    <a href="/admin/calendar" class="btn-primary" style="background: linear-gradient(135deg, #0033A0, #0072CE); text-align: center; font-size: 14px;">
-                        📅 Calendar
-                    </a>
-                </div>
+        <div class="card admin-section">
+            <h3 style="margin-bottom: 18px;"><i class="fa-solid fa-bolt" style="color: var(--accent);"></i> Quick Actions</h3>
+            <div class="action-grid">
+                <a href="/roster" class="action-btn act-gold"><i class="fa-solid fa-id-card-clip"></i> Live Roster</a>
+                <a href="/admin/users" class="action-btn act-blue"><i class="fa-solid fa-user-gear"></i> Users</a>
+                <a href="/admin/auto-seed" class="action-btn act-indigo"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Seed</a>
+                <a href="/admin/create-brackets" class="action-btn act-gold"><i class="fa-solid fa-diagram-project"></i> Brackets</a>
+                <a href="/matches" class="action-btn act-red"><i class="fa-solid fa-clipboard-check"></i> Set Result</a>
+                <a href="/admin/rate-player" class="action-btn act-indigo"><i class="fa-solid fa-star"></i> Rate Player</a>
+                <a href="/admin/attendance" class="action-btn act-green"><i class="fa-solid fa-clipboard-user"></i> Attendance</a>
+                <a href="/admin/bulk-checkin" class="action-btn act-cyan"><i class="fa-solid fa-check-double"></i> Bulk Check-in</a>
+                <a href="/admin/calendar" class="action-btn act-blue"><i class="fa-solid fa-fire"></i> Avail. Map</a>
+                <a href="/admin/gallery" class="action-btn act-green"><i class="fa-solid fa-images"></i> Gallery</a>
+                <a href="/admin/backup" class="action-btn act-gold"><i class="fa-solid fa-database"></i> Backup DB</a>
             </div>
         </div>
     </div>

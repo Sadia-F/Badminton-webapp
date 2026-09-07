@@ -7,56 +7,86 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container">
-        <div class="section">
-            <div class="profile-header" style="display: flex; align-items: center; gap: 30px; margin-bottom: 40px; background: var(--bg-card); padding: 40px; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); border: 1px solid var(--border-color);">
-                <div class="profile-image" style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; border: 4px solid var(--nyit-blue);">
-                    <img src="/static/images/{{ user.player_image }}" alt="{{ user.full_name }}" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-                <div>
-                    <h1 style="margin: 0; font-size: 36px;">{{ user.full_name }}</h1>
-                    <p style="color: var(--text-muted); font-size: 18px; margin: 5px 0 15px;">{{ user.role|capitalize }}</p>
-                    <span class="role-badge {% if user.role == 'admin' %}admin{% elif user.role == 'captain' %}admin{% else %}player{% endif %}">
-                        {{ '👑 Team Admin' if user.role == 'admin' else '🏸 Team Captain' if user.role == 'captain' else '🏸 Team Player' }}
-                    </span>
-                </div>
-            </div>
+    <div class="page-head">
+        <div>
+            <div class="eyebrow"><i class="fa-solid fa-id-badge"></i> Player Card</div>
+            <h1>Player Profile</h1>
+        </div>
+    </div>
 
-            <div class="dashboard-grid" style="grid-template-columns: repeat(3, 1fr);">
-                <div class="card" style="text-align: center;">
-                    <h3 style="color: var(--text-muted); font-size: 14px; text-transform: uppercase; margin-bottom: 10px;">Total Matches</h3>
-                    <div style="font-size: 32px; font-weight: 800; color: var(--nyit-blue);">{{ total_matches }}</div>
-                </div>
-                <div class="card" style="text-align: center;">
-                    <h3 style="color: var(--text-muted); font-size: 14px; text-transform: uppercase; margin-bottom: 10px;">Total Wins</h3>
-                    <div style="font-size: 32px; font-weight: 800; color: var(--success);">{{ wins }}</div>
-                </div>
-                <div class="card" style="text-align: center;">
-                    <h3 style="color: var(--text-muted); font-size: 14px; text-transform: uppercase; margin-bottom: 10px;">Win Rate</h3>
-                    <div style="font-size: 32px; font-weight: 800; color: var(--accent);">{{ win_rate }}%</div>
-                </div>
+    <div class="card" style="display: flex; align-items: center; gap: 28px; flex-wrap: wrap; margin-bottom: 32px; padding: 34px;">
+        <div class="profile-image {% if user.role in ['admin', 'captain'] %}gold{% endif %}">
+            {% set img = avatar_url(user) %}
+            {% if img %}<img src="{{ img }}" alt="{{ user.full_name }}" style="width: 100%; height: 100%; object-fit: cover;">{% else %}{{ user.full_name[:1] }}{% endif %}
+        </div>
+        <div style="flex: 1; min-width: 240px;">
+            <h1 style="margin: 0; font-size: 30px;">{{ user.full_name }}</h1>
+            <p class="text-muted" style="margin: 4px 0 12px;">@{{ user.username }}</p>
+            <span class="role-badge {% if user.role in ['admin', 'captain'] %}admin{% else %}player{% endif %}">
+                {{ '👑 Team Admin' if user.role == 'admin' else '🏸 Team Captain' if user.role == 'captain' else '🏸 Team Player' }}
+            </span>
+            <div style="margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <span class="pill" style="{% if on_court_today %}background: var(--success-bg); color: #0E7A54;{% else %}background: var(--bg-soft); color: var(--text-muted);{% endif %}">
+                    {% if on_court_today %}● On court today{% else %}○ Off court today{% endif %}
+                </span>
+                {% if streak > 0 %}
+                    <span class="pill" style="background: #FFF3E0; color: #B45309;">🔥 {{ streak }} day streak</span>
+                {% endif %}
             </div>
+        </div>
+        {% if can_edit %}
+        <form method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label for="photo-upload" class="btn-ghost" style="cursor: pointer; padding: 10px 18px;">
+                <i class="fa-solid fa-camera"></i> {{ 'Change photo' if img else 'Add photo' }}
+            </label>
+            <input type="file" name="photo" id="photo-upload" accept="image/*" style="display: none;" onchange="this.form.submit()">
+        </form>
+        {% endif %}
+    </div>
 
-            <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; align-items: start;">
-                <div class="card">
-                    <h3 style="margin-bottom: 20px; text-align: center;"><i class="fa-solid fa-chart-pie" style="margin-right: 10px;"></i> Performance Radar</h3>
-                    <div style="max-width: 400px; margin: 0 auto;">
-                        <canvas id="performanceChart"></canvas>
+    <div class="stats-row">
+        <div class="stat-card blue">
+            <div class="sc-icon"><i class="fa-solid fa-table-list"></i></div>
+            <div>
+                <div class="sc-num">{{ total_matches }}</div>
+                <div class="sc-lbl">Total matches</div>
+            </div>
+        </div>
+        <div class="stat-card green">
+            <div class="sc-icon"><i class="fa-solid fa-medal"></i></div>
+            <div>
+                <div class="sc-num">{{ wins }}</div>
+                <div class="sc-lbl">Wins</div>
+            </div>
+        </div>
+        <div class="stat-card gold">
+            <div class="sc-icon"><i class="fa-solid fa-percent"></i></div>
+            <div>
+                <div class="sc-num">{{ win_rate }}%</div>
+                <div class="sc-lbl">Win rate</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; align-items: start;">
+        <div class="card">
+            <h3 style="margin-bottom: 20px; text-align: center;"><i class="fa-solid fa-chart-pie" style="margin-right: 10px; color: var(--primary);"></i> Skill Radar</h3>
+            <div style="max-width: 400px; margin: 0 auto;">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <h3 style="margin-bottom: 20px;"><i class="fa-solid fa-trophy" style="margin-right: 10px; color: var(--nyit-gold);"></i> Achievements</h3>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                {% for ach in achievements %}
+                    <div style="padding: 15px 16px; background: var(--bg-soft); border-radius: var(--radius-md); border-left: 4px solid var(--nyit-gold);">
+                        <strong style="display: block; font-size: 15px;">🏅 {{ ach.title }}</strong>
+                        <span class="text-muted" style="font-size: 13px;">{{ ach.description }}</span>
                     </div>
-                </div>
-                <div class="card">
-                    <h3 style="margin-bottom: 20px;"><i class="fa-solid fa-trophy" style="margin-right: 10px; color: var(--nyit-gold);"></i> Achievements</h3>
-                    <div style="display: flex; flex-direction: column; gap: 12px;">
-                        {% for ach in achievements %}
-                            <div style="padding: 15px; background: var(--bg-main); border-radius: var(--radius-sm); border-left: 4px solid var(--nyit-gold);">
-                                <strong style="display: block; font-size: 15px;">{{ ach.title }}</strong>
-                                <span style="font-size: 13px; color: var(--text-muted);">{{ ach.description }}</span>
-                            </div>
-                        {% else %}
-                            <p style="text-align: center; color: var(--text-muted);">No achievements yet. Keep playing!</p>
-                        {% endfor %}
-                    </div>
-                </div>
+                {% else %}
+                    <p class="text-center text-muted">No achievements yet. Keep grinding! 💪</p>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -73,10 +103,11 @@
                     label: 'Skill Level',
                     data: [{{ metrics.smash }}, {{ metrics.net }}, {{ metrics.footwork }}, {{ metrics.consistency }}, {{ metrics.variety }}],
                     fill: true,
-                    backgroundColor: 'rgba(0, 51, 160, 0.2)',
+                    backgroundColor: 'rgba(10, 92, 255, 0.22)',
                     borderColor: 'rgb(0, 51, 160)',
-                    pointBackgroundColor: 'rgb(0, 51, 160)',
+                    pointBackgroundColor: 'rgb(255, 215, 0)',
                     pointBorderColor: '#fff',
+                    pointRadius: 4,
                     pointHoverBackgroundColor: '#fff',
                     pointHoverBorderColor: 'rgb(0, 51, 160)'
                 }]
@@ -84,15 +115,14 @@
             options: {
                 scales: {
                     r: {
-                        angleLines: { display: true },
+                        angleLines: { color: 'rgba(100,116,139,0.2)' },
+                        grid: { color: 'rgba(100,116,139,0.2)' },
                         suggestedMin: 0,
                         suggestedMax: 10,
-                        ticks: { stepSize: 2 }
+                        ticks: { stepSize: 2, backdropColor: 'transparent', color: '#94A3B8' }
                     }
                 },
-                plugins: {
-                    legend: { display: false }
-                }
+                plugins: { legend: { display: false } }
             }
         });
     </script>

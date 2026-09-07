@@ -3,122 +3,239 @@
 {% block title %}Dashboard - NYIT Badminton{% endblock %}
 
 {% block content %}
-    <div class="container">
-        {% if current_user.role in ['admin', 'captain'] %}
-        <div class="admin-section">
-            <h2 style="margin-bottom: 20px;">🔑 Management Command Center</h2>
-            <div class="dashboard-grid">
-                {% if current_user.role == 'admin' %}
-                <div class="dashboard-card" onclick="location.href='/admin'">
-                    <div class="icon"><i class="fa-solid fa-sliders"></i></div>
-                    <h3>Admin Panel</h3>
-                    <p>Full management controls</p>
-                </div>
-                {% endif %}
-                <div class="dashboard-card" onclick="location.href='/admin/attendance'">
-                    <div class="icon"><i class="fa-solid fa-clipboard-user"></i></div>
-                    <h3>Attendance</h3>
-                    <p>Track check-ins</p>
-                </div>
-                <div class="dashboard-card" onclick="location.href='/admin/calendar'">
-                    <div class="icon"><i class="fa-solid fa-calendar-days"></i></div>
-                    <h3>Availability</h3>
-                    <p>Heatmap analysis</p>
-                </div>
-                <div class="dashboard-card" onclick="location.href='/admin/create-brackets'">
-                    <div class="icon"><i class="fa-solid fa-trophy"></i></div>
-                    <h3>Brackets</h3>
-                    <p>Setup tournaments</p>
-                </div>
+    <div class="page-head">
+        <div>
+            <div class="eyebrow"><i class="fa-solid fa-gauge-high"></i> Command Center</div>
+            <h1>Welcome back, {{ current_user.full_name.split(' ')[0] }} 👋</h1>
+            <p class="subtitle" id="today-line"></p>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <span class="role-badge {% if current_user.role in ['admin', 'captain'] %}admin{% else %}player{% endif %}">
+                {{ '👑 Team Admin' if current_user.role == 'admin' else '🏸 Team Captain' if current_user.role == 'captain' else '🏸 Team Player' }}
+            </span>
+            <a href="/profile/{{ current_user.username }}" class="pill" style="text-decoration: none;">👤 My Profile</a>
+        </div>
+    </div>
+
+    <div class="stats-row">
+        <div class="stat-card blue">
+            <div class="sc-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+            <div>
+                <div class="sc-num">{{ today_checkins }}</div>
+                <div class="sc-lbl">Checked in today</div>
             </div>
         </div>
-        {% endif %}
-
-        <div class="dashboard-header" style="padding-top: 40px;">
-            <h1 style="font-size: 48px; margin-bottom: 10px;">👋 Welcome, {{ current_user.full_name }}!</h1>
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <span class="role-badge {% if current_user.role == 'admin' %}admin{% elif current_user.role == 'captain' %}admin{% else %}player{% endif %}">
-                    {{ '👑 Team Admin' if current_user.role == 'admin' else '🏸 Team Captain' if current_user.role == 'captain' else '🏸 Team Player' }}
-                </span>
-                <div class="stat-row" style="margin: 0; display: flex; gap: 10px;">
-                    <span class="stat-pill">✅ {{ today_checkins }} Check-ins today</span>
-                    <span class="stat-pill">👥 {{ total_players }} Total Players</span>
-                    <span class="stat-pill">📅 {% if checkin_status %}✅ Checked in{% else %}❌ Not checked in{% endif %}</span>
-                    <a href="/profile/{{ current_user.username }}" class="stat-pill" style="text-decoration: none; color: var(--nyit-blue); font-weight: 600; background: #eef2ff;">👤 My Profile</a>
-                </div>
+        <div class="stat-card green">
+            <div class="sc-icon"><i class="fa-solid fa-users"></i></div>
+            <div>
+                <div class="sc-num">{{ total_players }}</div>
+                <div class="sc-lbl">Total athletes</div>
             </div>
         </div>
-
-        <div class="card" style="text-align: center; padding: 50px; background: linear-gradient(135deg, #eef2ff, #e0e7ff); border: none; margin-bottom: 40px;">
-            <div style="font-size: 64px; margin-bottom: 20px;">🏸</div>
-            <h2 style="margin-bottom: 10px;">Ready for Practice?</h2>
-            <p style="color: var(--text-muted); margin-bottom: 30px;">Mark your presence for today's session</p>
-            {% if checkin_status %}
-                <div class="card" style="background: #dcfce7; color: #166534; display: inline-block; padding: 15px 30px; border: none; box-shadow: none; font-weight: 600;">
-                    ✅ You're already checked in!
-                </div>
-            {% else %}
-                <form method="POST" action="/check-in">
-                    <button type="submit" class="btn-primary" style="padding: 16px 48px; font-size: 18px; border-radius: 50px;">
-                        ✅ Check In Now
-                    </button>
-                </form>
-            {% endif %}
-        </div>
-
-        <div class="dashboard-grid">
-            <div class="dashboard-card" onclick="location.href='/availability'">
-                <div class="icon"><i class="fa-solid fa-calendar-check"></i></div>
-                <h3>Availability</h3>
-                <p>Manage your time slots</p>
-            </div>
-            <div class="dashboard-card" onclick="location.href='/matches'">
-                <div class="icon"><i class="fa-solid fa-table-list"></i></div>
-                <h3>My Matches</h3>
-                <p>Upcoming & past games</p>
-            </div>
-            <div class="dashboard-card" onclick="location.href='/update-score'">
-                <div class="icon"><i class="fa-solid fa-square-poll-vertical"></i></div>
-                <h3>Scores</h3>
-                <p>Update match results</p>
-            </div>
-            <div class="dashboard-card" onclick="location.href='/performance'">
-                <div class="icon"><i class="fa-solid fa-star"></i></div>
-                <h3>Performance</h3>
-                <p>Rate your skill level</p>
-            </div>
-            <div class="dashboard-card" onclick="location.href='/brackets'">
-                <div class="icon"><i class="fa-solid fa-diagram-project"></i></div>
-                <h3>Brackets</h3>
-                <p>Tournament progress</p>
+        <div class="stat-card {% if checkin_status %}green{% else %}gold{% endif %}">
+            <div class="sc-icon"><i class="fa-solid fa-circle-user"></i></div>
+            <div>
+                <div class="sc-num">{% if checkin_status %}✅ On site{% else %}❌ Away{% endif %}</div>
+                <div class="sc-lbl">Your status today</div>
             </div>
         </div>
-
-        <div class="section">
-            <h2 style="margin-bottom: 20px;">🔥 Recent Matches</h2>
-            <div class="dashboard-grid">
-                {% if matches %}
-                    {% for match in matches[:3] %}
-                        <div class="card">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <p style="margin: 0; font-weight: 600;">{{ match.match_date }}</p>
-                                    <p style="font-size: 18px; font-weight: 700; margin: 5px 0;">
-                                        {{ match.team1_player1 }} vs {{ match.team2_player1 }}
-                                    </p>
-                                </div>
-                                <span class="role-badge {% if match.status == 'completed' %}admin{% else %}player{% endif %}">
-                                    {{ match.status }}
-                                </span>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="card" style="text-align: center; grid-column: 1 / -1;">
-                        <p>No matches scheduled.</p>
-                    </div>
-                {% endif %}
+        <div class="stat-card lime">
+            <div class="sc-icon"><i class="fa-solid fa-signal"></i></div>
+            <div>
+                <div class="sc-num" id="live-on-court-num" style="opacity: 0;">–</div>
+                <div class="sc-lbl">On court now (live)</div>
             </div>
         </div>
     </div>
+
+    <div class="card" style="background: linear-gradient(135deg, #001B57 0%, #0033A0 55%, #0A5CFF 120%); border: none; color: white; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: 40px; box-shadow: var(--shadow-md);">
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <div style="font-size: 46px; line-height: 1;">🏸</div>
+            <div>
+                <h2 style="color: #fff; margin-bottom: 2px;">Ready for Practice?</h2>
+                <p style="opacity: 0.8; margin: 0; font-size: 14px;">Mark your presence for today's session</p>
+            </div>
+        </div>
+        {% if checkin_status %}
+            <span class="pill" style="background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.25); color: #B9F5D8; font-weight: 800;">✅ You're checked in!</span>
+        {% else %}
+            <form method="POST" action="/check-in" style="margin: 0;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, var(--nyit-gold), #FFB300); color: #403000; box-shadow: 0 14px 30px -10px rgba(255, 215, 0, 0.6);">
+                    ✅ Check In Now
+                </button>
+            </form>
+        {% endif %}
+    </div>
+
+    <div class="highlight-row">
+        <div class="highlight-card fire">
+            <div class="hl-icon">🔥</div>
+            <div style="flex: 1; min-width: 160px;">
+                <div class="hl-num">{{ streak }} day{{ '' if streak == 1 else 's' }}</div>
+                <div class="hl-lbl">Attendance streak</div>
+                <div class="hl-progress"><div class="hl-bar" style="width: {{ [streak, 30]|min * 100 // 30 }}%"></div></div>
+                <span class="hl-hint">{{ 'On fire — keep showing up!' if streak >= 3 else 'Check in today to start your streak!' }}</span>
+            </div>
+        </div>
+        <div class="highlight-card gold">
+            <div class="hl-icon">👑</div>
+            <div style="flex: 1; min-width: 160px;">
+                <div class="hl-num">{{ weekly_mvp or '—' }}</div>
+                <div class="hl-lbl">This week's MVP</div>
+                <span class="hl-hint"><a href="/mvp" style="color: inherit;">Cast your vote →</a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-head" style="margin-top: 36px; margin-bottom: 0;">
+        <div>
+            <div class="eyebrow"><i class="fa-solid fa-suitcase"></i> My Zone</div>
+            <h1>Player Toolkit</h1>
+        </div>
+    </div>
+    <div class="dashboard-grid">
+        <div class="dashboard-card" onclick="location.href='/availability'">
+            <div class="icon"><i class="fa-solid fa-clock"></i></div>
+            <h3>Availability</h3>
+            <p>Set the slots you can train each week.</p>
+            <i class="fa-solid fa-arrow-right go-arrow"></i>
+        </div>
+        <div class="dashboard-card" onclick="location.href='/matches'">
+            <div class="icon"><i class="fa-solid fa-table-list"></i></div>
+            <h3>Matches</h3>
+            <p>Upcoming fixtures &amp; past results.</p>
+            <i class="fa-solid fa-arrow-right go-arrow"></i>
+        </div>
+        <div class="dashboard-card" onclick="location.href='/update-score'">
+            <div class="icon"><i class="fa-solid fa-square-poll-vertical"></i></div>
+            <h3>Scores</h3>
+            <p>Log your latest match scoreline.</p>
+            <i class="fa-solid fa-arrow-right go-arrow"></i>
+        </div>
+        <div class="dashboard-card" onclick="location.href='/performance'">
+            <div class="icon"><i class="fa-solid fa-star"></i></div>
+            <h3>Performance</h3>
+            <p>Rate your skill across 5 key metrics.</p>
+            <i class="fa-solid fa-arrow-right go-arrow"></i>
+        </div>
+        <div class="dashboard-card" onclick="location.href='/brackets'">
+            <div class="icon"><i class="fa-solid fa-diagram-project"></i></div>
+            <h3>Brackets</h3>
+            <p>Track tournament progress live.</p>
+            <i class="fa-solid fa-arrow-right go-arrow"></i>
+        </div>
+        <div class="dashboard-card" onclick="location.href='/schedule'">
+            <div class="icon"><i class="fa-solid fa-calendar-days"></i></div>
+            <h3>Practice Schedule</h3>
+            <p>See this week's sessions &amp; locations.</p>
+            <i class="fa-solid fa-arrow-right go-arrow"></i>
+        </div>
+    </div>
+
+    {% if current_user.role in ['admin', 'captain'] %}
+    <div class="page-head" style="margin-top: 16px; margin-bottom: 0;">
+        <div>
+            <div class="eyebrow"><i class="fa-solid fa-user-shield"></i> Staff</div>
+            <h1>Management Toolkit</h1>
+        </div>
+    </div>
+    <div class="dashboard-grid">
+        {% if current_user.role == 'admin' %}
+        <div class="dashboard-card admin-section" onclick="location.href='/admin'">
+            <div class="icon" style="background: linear-gradient(135deg, #FFF7D6, #FFE9A8); color: #8A6D00;"><i class="fa-solid fa-sliders"></i></div>
+            <h3>Admin Panel</h3>
+            <p>Full suite of roster &amp; content controls.</p>
+            <i class="fa-solid fa-arrow-right go-arrow"></i>
+        </div>
+        {% endif %}
+        <div class="dashboard-card admin-section" onclick="location.href='/roster'">
+            <div class="icon" style="background: linear-gradient(135deg, #DFF6EC, #BFF0DB); color: #0E7A54;"><i class="fa-solid fa-id-card-clip"></i></div>
+            <h3>Roster</h3>
+            <p>Live check-in / check-out desk for the whole team.</p>
+            <i class="fa-solid fa-arrow-right go-arrow"></i>
+        </div>
+        <div class="dashboard-card" onclick="location.href='/admin/attendance'">
+            <div class="icon"><i class="fa-solid fa-clipboard-user"></i></div>
+            <h3>Attendance</h3>
+            <p>Daily check-in records at a glance.</p>
+            <i class="fa-solid fa-arrow-right go-arrow"></i>
+        </div>
+        <div class="dashboard-card" onclick="location.href='/admin/calendar'">
+            <div class="icon"><i class="fa-solid fa-fire"></i></div>
+            <h3>Availability Map</h3>
+            <p>Heatmap of when the team can train.</p>
+            <i class="fa-solid fa-arrow-right go-arrow"></i>
+        </div>
+        <div class="dashboard-card" onclick="location.href='/admin/create-brackets'">
+            <div class="icon"><i class="fa-solid fa-trophy"></i></div>
+            <h3>Brackets</h3>
+            <p>Set up or auto-seed tournaments.</p>
+            <i class="fa-solid fa-arrow-right go-arrow"></i>
+        </div>
+        <div class="dashboard-card" onclick="location.href='/admin/tournaments'">
+            <div class="icon"><i class="fa-solid fa-medal"></i></div>
+            <h3>Tournaments</h3>
+            <p>Launch the next club competition.</p>
+            <i class="fa-solid fa-arrow-right go-arrow"></i>
+        </div>
+        <div class="dashboard-card" onclick="location.href='/admin/bulk-checkin'">
+            <div class="icon"><i class="fa-solid fa-check-double"></i></div>
+            <h3>Bulk Check-in</h3>
+            <p>Mark many players present instantly.</p>
+            <i class="fa-solid fa-arrow-right go-arrow"></i>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="page-head" style="margin-top: 8px; margin-bottom: 0;">
+        <div>
+            <div class="eyebrow"><i class="fa-solid fa-fire"></i> Recent</div>
+            <h1>Upcoming Matches</h1>
+        </div>
+        <a href="/matches" class="btn-ghost">All matches <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+    <div class="dashboard-grid">
+        {% if matches %}
+            {% for match in matches[:3] %}
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span class="match-round-chip chip-{{ match.status }}">Round {{ match.bracket_round }}</span>
+                        <small class="text-muted">📅 {{ match.match_date }}{% if match.match_time %} · {{ match.match_time }}{% endif %}</small>
+                    </div>
+                    <p style="font-size: 18px; font-weight: 800; margin: 4px 0 0;">
+                        {{ match.team1_player1 }}{% if match.team1_player2 %} & {{ match.team1_player2 }}{% endif %}
+                        <span class="text-muted" style="font-weight: 700;">vs</span>
+                        {{ match.team2_player1 }}{% if match.team2_player2 %} & {{ match.team2_player2 }}{% endif %}
+                    </p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="card text-center" style="grid-column: 1 / -1;">
+                <p class="text-muted">No matches scheduled yet.</p>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        const d = new Date();
+        const dateStr = d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+        document.getElementById('today-line').textContent = dateStr + ' · Let\'s get on court!';
+
+        async function pollOnCourt() {
+            try {
+                const r = await fetch('/api/on-court');
+                const j = await r.json();
+                const el = document.getElementById('live-on-court-num');
+                if (el) {
+                    el.textContent = j.count;
+                    el.style.opacity = '1';
+                }
+            } catch (e) {}
+        }
+        pollOnCourt();
+        setInterval(pollOnCourt, 20000);
+    </script>
 {% endblock %}

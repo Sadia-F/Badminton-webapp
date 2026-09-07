@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - NYIT Badminton Team Manager</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#0033A0">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,40 +13,57 @@
     <meta name="apple-mobile-web-app-title" content="NYIT Badminton">
 </head>
 <body>
-    <div class="login-wrapper" style="background: linear-gradient(135deg, #0033A0 0%, #0072CE 50%, #1A1A2E 100%);">
+    <div class="login-wrapper">
         <div class="login-box">
-            <div class="logo-text">🏸 <span style="background: linear-gradient(135deg, #0033A0, #0072CE); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Team</span> Manager</div>
-            <p class="subtitle">NYIT Badminton Team Management</p>
-            
-            <h2>🔐 Welcome Back</h2>
-            
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div class="brand-mark" style="margin: 0 auto 14px;">🏸</div>
+                <div class="logo-text">NYIT <span>Badminton</span></div>
+                <p class="subtitle" style="margin-bottom: 0;">Team Manager · Athlete Portal</p>
+            </div>
+
+            <h2>Welcome Back</h2>
+
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
-                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                        <div class="flash flash-{{ category }}">
+                            {% if category == 'danger' %}<i class="fa-solid fa-circle-xmark"></i>{% else %}<i class="fa-solid fa-circle-info"></i>{% endif %}
+                            {{ message }}
+                        </div>
                     {% endfor %}
                 {% endif %}
             {% endwith %}
 
             <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-group">
-                    <label>👤 Username</label>
+                    <label><i class="fa-solid fa-user" style="margin-right: 6px; color: var(--primary);"></i> Username</label>
                     <input type="text" name="username" required placeholder="Enter your username">
                 </div>
                 <div class="form-group">
-                    <label>🔒 Password</label>
+                    <label><i class="fa-solid fa-lock" style="margin-right: 6px; color: var(--primary);"></i> Password</label>
                     <input type="password" name="password" required placeholder="Enter your password">
                 </div>
-                <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #0033A0, #0072CE);">🚀 Sign In</button>
+<button type="submit" class="btn-primary" style="width: 100%; padding: 15px; font-size: 16px; border-radius: 16px;">
+                <i class="fa-solid fa-right-to-bracket"></i> Sign In
+            </button>
+            <p style="margin-top: 18px; text-align: center; font-size: 13.5px; color: var(--text-muted);">
+                New to the team? <a href="/register" style="font-weight: 800; color: var(--primary);">Create an account</a>
+            </p>
             </form>
-            
+
+            <a href="/" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 18px; text-decoration: none; color: var(--text-muted); font-size: 13px; font-weight: 600;">
+                <i class="fa-solid fa-arrow-left"></i> Back to home
+            </a>
+
             <div class="demo-credentials">
-                <strong>Demo Credentials</strong><br>
-                Username: <strong>admin</strong> &bull; Password: <strong>admin123</strong>
+                <strong><i class="fa-solid fa-key"></i> Admin Access</strong><br>
+                Username: <strong>kabir</strong> or <strong>sadia</strong> · Password: <strong>admin123</strong><br>
+                <span style="opacity: 0.7;">(admins are athletes too — check in, rate &amp; play!)</span>
             </div>
-            
-            <div style="margin-top: 15px; text-align: center; font-size: 12px; color: #999;">
-                New York Institute of Technology
+
+            <div style="margin-top: 16px; text-align: center; font-size: 11.5px;">
+                <span style="color: var(--text-faint);">New York Institute of Technology · Athletics &amp; Recreation</span>
             </div>
         </div>
     </div>

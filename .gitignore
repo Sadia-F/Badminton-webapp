@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# App data — never commit the live database or uploads
+instance/*.db
+instance/*.db-wal
+instance/*.db-shm
+static/uploads/
+
+# Editor / OS
+*.backup
+*.backup1
+*.backup2
+.DS_Store

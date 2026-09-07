@@ -9,6 +9,7 @@
 
             <div style="max-width: 600px; margin: 0 auto 40px auto;">
                 <form method="POST" class="card">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <h3 style="text-align: center; margin-bottom: 20px;">Create New Tournament</h3>
                     <div class="form-group">
                         <label>Tournament Name</label>

@@ -9,6 +9,7 @@
             <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">Drag players from the pool into the match slots</p>
 
             <form method="POST" id="bracket-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="card" style="display: flex; gap: 20px; margin-bottom: 30px; justify-content: center; align-items: flex-end; flex-wrap: wrap;">
                     <div class="form-group" style="margin: 0;">
                         <label>Tournament</label>

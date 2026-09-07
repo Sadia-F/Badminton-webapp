@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Gallery - NYIT Badminton{% endblock %}
+
+{% block content %}
+    <div class="page-head">
+        <div>
+            <div class="eyebrow"><i class="fa-solid fa-images"></i> Memories</div>
+            <h1>Team Gallery</h1>
+            <p class="subtitle">Hype moments, match action, and locker-room wins.</p>
+        </div>
+    </div>
+
+    {% if images %}
+        <div class="gallery-grid">
+            {% for img in images %}
+                <figure class="gallery-item">
+                    <img src="/static/uploads/{{ img.filename }}" alt="{{ img.caption or 'Team photo' }}" loading="lazy" onclick="this.classList.toggle('zoom')">
+                    <figcaption>
+                        {% if img.caption %}<strong>{{ img.caption }}</strong>{% endif %}
+                        <span>{{ img.uploaded_at.strftime('%b %d, %Y') }}</span>
+                    </figcaption>
+                </figure>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card text-center">
+            <div style="font-size: 52px; margin-bottom: 12px;">📸</div>
+            <h3>No photos yet</h3>
+            <p class="text-muted">Admins can upload match photos and team moments.</p>
+        </div>
+    {% endif %}
+{% endblock %}

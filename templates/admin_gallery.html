@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Gallery Admin - NYIT Badminton{% endblock %}
+
+{% block content %}
+    <div class="page-head">
+        <div>
+            <div class="eyebrow"><i class="fa-solid fa-images"></i> Staff Access</div>
+            <h1>Manage Gallery</h1>
+        </div>
+    </div>
+
+    <div class="card" style="max-width: 680px; margin: 0 auto 44px;">
+        <h3 style="margin-bottom: 16px;">Upload photos</h3>
+        <form method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label>Photos (multiple allowed — jpg, png, gif, webp)</label>
+                <input type="file" name="images" multiple accept="image/*" required>
+            </div>
+            <div class="form-group">
+                <label>Caption (optional)</label>
+                <input type="text" name="caption" placeholder="e.g. Championship finals!" maxlength="300">
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%;">📤 Upload</button>
+        </form>
+    </div>
+
+    <h3 style="margin-bottom: 20px; text-align: center;">Current photos</h3>
+    <div class="gallery-grid">
+        {% if images %}
+            {% for img in images %}
+                <figure class="gallery-item">
+                    <img src="/static/uploads/{{ img.filename }}" alt="{{ img.caption or 'Photo' }}" loading="lazy">
+                    <figcaption>
+                        {% if img.caption %}<strong>{{ img.caption }}</strong>{% endif %}
+                        <span style="display: flex; gap: 10px; align-items: center;">
+                            <span>{{ img.uploaded_at.strftime('%b %d, %Y') }}</span>
+                            <form method="POST" action="/admin/gallery/delete/{{ img.id }}" style="margin: 0;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="logout-link" style="padding: 2px 6px;" onclick="return confirm('Delete this photo?')">🗑️ Delete</button>
+                            </form>
+                        </span>
+                    </figcaption>
+                </figure>
+            {% endfor %}
+        {% else %}
+            <div style="grid-column: 1 / -1; text-align: center;" class="card">
+                <p class="text-muted">Nothing uploaded yet.</p>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

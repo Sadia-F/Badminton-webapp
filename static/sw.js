@@ -1,4 +1,4 @@
-const CACHE_NAME = 'badminton-v1';
+const CACHE_NAME = 'badminton-v4';
 const ASSETS_TO_CACHE = [
   '/',
   '/static/style.css',

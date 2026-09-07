@@ -63,6 +63,7 @@
             <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">Click a slot to toggle your availability</p>
 
             <div class="card">
+                <input type="hidden" id="csrf-token" value="{{ csrf_token() }}">
                 <div class="availability-grid">
                     <div class="grid-header">Day</div>
                     {% set slots = ['12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm', '9pm', '10pm', '11pm'] %}
@@ -102,6 +103,12 @@
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = '/availability';
+
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrf_token';
+            csrfInput.value = document.getElementById('csrf-token').value;
+            form.appendChild(csrfInput);
 
             const dayInput = document.createElement('input');
             dayInput.type = 'hidden';

@@ -11,93 +11,266 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NYIT Badminton">
+    <script>
+        (function(){
+            try {
+                var t = localStorage.getItem('badminton-theme');
+                if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+            } catch(e) {}
+        })();
+    </script>
     {% block head %}{% endblock %}
 </head>
 <body>
-    <nav>
-        <div class="container">
-            <a href="/" class="logo">🏸 <span>Team</span> Manager</a>
-            <div class="nav-links">
-                <a href="/">Home</a>
-                {% if current_user.is_authenticated %}
-                    <a href="/dashboard">Dashboard</a>
-                    <div class="nav-notifications">
-                        <div class="notif-bell" id="notif-bell">
-                            <i class="fa-solid fa-bell"></i>
-                            {% if unread_notifs > 0 %}
-                                <span class="notif-badge">{{ unread_notifs }}</span>
-                            {% endif %}
+    {% set authed = current_user.is_authenticated %}
+    {% set uname = (current_user.full_name if authed else 'Guest') %}
+    {% set my_img = (avatar_url(current_user) if authed else None) %}
+    {% set urole_disp = ('👑 Team Admin' if current_user.role == 'admin' else '🏸 Team Captain' if current_user.role == 'captain' else '🏸 Team Player') if authed else 'Guest' %}
+    <aside class="sidebar" id="sidebar" {% if not authed %}hidden{% endif %}>
+        <div class="sidebar-brand">
+            <div class="brand-mark">🏸</div>
+            <div class="brand-text">NYIT Badminton<small>Team Manager</small></div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">Team Hub</div>
+            <a href="/" class="{{ active('home') }}"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="/dashboard" class="{{ active('dashboard') }}"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+            <a href="/schedule" class="{{ active('schedule') }}"><i class="fa-solid fa-calendar-days"></i> Practice Schedule</a>
+            <a href="/team" class="{{ active('team') }}"><i class="fa-solid fa-users"></i> Our Team</a>
+            <a href="/matches" class="{{ active('matches') }}"><i class="fa-solid fa-table-list"></i> Matches</a>
+            <a href="/brackets" class="{{ active('brackets') }}"><i class="fa-solid fa-diagram-project"></i> Brackets</a>
+            <a href="/announcements" class="{{ active('announcements_page') }}"><i class="fa-solid fa-bullhorn"></i> Announcements</a>
+            <a href="/leaderboard" class="{{ active('leaderboard') }}"><i class="fa-solid fa-ranking-star"></i> Leaderboard</a>
+            <a href="/mvp" class="{{ active('mvp') }}"><i class="fa-solid fa-crown"></i> Weekly MVP</a>
+            <a href="/gallery" class="{{ active('gallery') }}"><i class="fa-solid fa-images"></i> Gallery</a>
+            <a href="/achievements" class="{{ active('achievements_page') }}"><i class="fa-solid fa-trophy"></i> Achievements</a>
+
+            <div class="nav-section">My Zone</div>
+            <a href="/availability" class="{{ active('availability') }}"><i class="fa-solid fa-clock"></i> Availability</a>
+            <a href="/update-score" class="{{ active('update_score') }}"><i class="fa-solid fa-square-poll-vertical"></i> Scores</a>
+            <a href="/performance" class="{{ active('performance') }}"><i class="fa-solid fa-star"></i> Performance</a>
+            <a href="/profile/{{ current_user.username if authed else '' }}" class="{{ active('profile') }}"><i class="fa-solid fa-id-badge"></i> My Profile</a>
+
+            {% if authed and current_user.role in ['admin', 'captain'] %}
+            <div class="nav-section">Management</div>
+            <a href="/roster" class="{{ active('roster_page') }}"><i class="fa-solid fa-id-card-clip"></i> Roster</a>
+            {% if current_user.role == 'admin' %}
+            <a href="/admin" class="{{ active('admin_panel') }}"><i class="fa-solid fa-user-shield"></i> Admin Panel</a>
+            <a href="/admin/users" class="{{ active('admin_users') }}"><i class="fa-solid fa-user-gear"></i> Users</a>
+            {% endif %}
+            <a href="/admin/attendance" class="{{ active('admin_attendance') }}"><i class="fa-solid fa-clipboard-user"></i> Attendance</a>
+            <a href="/admin/bulk-checkin" class="{{ active('admin_bulk_checkin') }}"><i class="fa-solid fa-check-double"></i> Bulk Check-in</a>
+            <a href="/admin/calendar" class="{{ active('admin_calendar') }}"><i class="fa-solid fa-fire"></i> Availability Map</a>
+            <a href="/admin/rate-player" class="{{ active('admin_rate_player') }}"><i class="fa-solid fa-star-half-stroke"></i> Rate Players</a>
+            <a href="/admin/tournaments" class="{{ active('admin_tournaments') }}"><i class="fa-solid fa-medal"></i> Tournaments</a>
+            <a href="/admin/auto-seed" class="{{ active('admin_auto_seed') }}"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Seed</a>
+            <a href="/admin/create-brackets" class="{{ active('admin_create_brackets') }}"><i class="fa-solid fa-diagram-project"></i> Create Brackets</a>
+            {% if current_user.role == 'admin' %}
+            <a href="/admin/announcements" class="{{ active('admin_announcements') }}"><i class="fa-solid fa-bullhorn"></i> Announcements</a>
+            <a href="/admin/schedule" class="{{ active('admin_schedule') }}"><i class="fa-solid fa-calendar-days"></i> Schedule Admin</a>
+            <a href="/admin/achievements" class="{{ active('admin_achievements') }}"><i class="fa-solid fa-trophy"></i> Achievements</a>
+            <a href="/admin/gallery" class="{{ active('admin_gallery') }}"><i class="fa-solid fa-images"></i> Gallery Admin</a>
+            <a href="/admin/backup" class="{{ active('admin_backup') }}"><i class="fa-solid fa-database"></i> Backup DB</a>
+            {% endif %}
+            {% endif %}
+        </nav>
+
+        <div class="sidebar-foot">
+            <div class="sidebar-user">
+                {% if my_img %}<span class="avatar photo"><img src="{{ my_img }}" alt="{{ uname }}"></span>
+                {% else %}<span class="avatar">{{ uname[:1] }}</span>{% endif %}
+                <div>
+                    <div class="u-name">{{ uname }}</div>
+                    <div class="u-role">{{ urole_disp }}</div>
+                </div>
+            </div>
+            <a href="/logout" class="sidebar-logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log out</a>
+        </div>
+    </aside>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+    <div class="main {% if not authed %}public{% endif %}">
+        <header class="topbar" {% if not authed %}hidden{% endif %}>
+            <button class="menu-btn" id="menu-btn" aria-label="Toggle menu"><i class="fa-solid fa-bars"></i></button>
+            <div class="topbar-title">{% block page_title %}NYIT Badminton{% endblock %}</div>
+            <div class="topbar-spacer"></div>
+            <div class="topbar-actions">
+                {% if authed and current_user.role in ['admin', 'captain'] %}
+                <a href="/roster" class="on-court-badge" id="on-court-badge" title="Live — who is on court now">
+                    <span class="pulse-dot"></span>
+                    <span class="oc-count" id="on-court-badge-count">–</span>
+                    <span class="oc-label">on court</span>
+                </a>
+                {% endif %}
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode"><i class="fa-solid fa-moon"></i></button>
+                <div class="nav-notifications">
+                    <div class="notif-bell" id="notif-bell">
+                        <i class="fa-solid fa-bell"></i>
+                        {% if unread_notifs > 0 %}
+                            <span class="notif-badge">{{ unread_notifs }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="notif-dropdown" id="notif-dropdown">
+                        <div class="notif-header">
+                            <span>🔔 Notifications</span>
+                            <span style="font-size: 11px; opacity: 0.8;">{{ unread_notifs }} unread</span>
                         </div>
-                        <div class="notif-dropdown" id="notif-dropdown">
-                            <div class="notif-header">Notifications</div>
-                            <div class="notif-list">
-                                {% for n in recent_notifs %}
-                                    <div class="notif-item {{ 'unread' if not n.is_read else '' }}" onclick="location.href='/notifications/read/{{ n.id }}'">
-                                        <span class="notif-msg">{{ n.message }}</span>
-                                        <span class="notif-time">{{ n.timestamp.strftime('%H:%M') }}</span>
-                                    </div>
-                                {% else %}
-                                    <div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 13px;">No notifications</div>
-                                {% endfor %}
-                            </div>
+                        <div class="notif-list">
+                            {% for n in recent_notifs %}
+                                <div class="notif-item {{ 'unread' if not n.is_read else '' }}" onclick="location.href='/notifications/read/{{ n.id }}'">
+                                    <span class="notif-msg">{{ n.message }}</span>
+                                    <span class="notif-time">{{ n.timestamp.strftime('%m/%d %H:%M') }}</span>
+                                </div>
+                            {% else %}
+                                <div style="padding: 28px; text-align: center; color: var(--text-muted); font-size: 13px;">🎉 All caught up!<br>No notifications.</div>
+                            {% endfor %}
                         </div>
                     </div>
-                    {% if current_user.role == 'admin' %}
-                        <a href="/admin" class="admin-link">⭐ Admin</a>
-                    {% endif %}
-                    <a href="/logout" class="logout-link">🚪 Logout</a>
-                {% else %}
-                    <a href="/login" class="btn-primary">🔐 Login</a>
+                </div>
+                <a href="/profile/{{ current_user.username if authed else '' }}" class="top-avatar">
+                    {% if my_img %}<img src="{{ my_img }}" alt="{{ uname }}">
+                    {% else %}{{ uname[:1] }}{% endif %}
+                </a>
+            </div>
+        </header>
+
+        <main class="content {% if not authed %}public{% endif %}">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div style="margin-bottom: 20px; max-width: 1280px; {% if not authed %}margin-left: auto; margin-right: auto; padding: 0 24px;{% endif %}">
+                        {% for category, message in messages %}
+                            <div class="flash flash-{{ category }}">
+                                {% if category == 'success' %}<i class="fa-solid fa-circle-check"></i>
+                                {% elif category == 'danger' %}<i class="fa-solid fa-circle-xmark"></i>
+                                {% elif category == 'warning' %}<i class="fa-solid fa-triangle-exclamation"></i>
+                                {% else %}<i class="fa-solid fa-circle-info"></i>{% endif %}
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
                 {% endif %}
-            </div>
-        </div>
-    </nav>
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </main>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="container" style="margin-top: 20px;">
-                {% for category, message in messages %}
-                    <div class="flash flash-{{ category }}">{{ message }}</div>
-                {% endfor %}
+        <footer>
+            <div class="container">
+                <p style="font-weight: 800; margin-bottom: 14px; color: #fff;">🏸 NYIT Badminton Team Manager</p>
+                <div style="display: flex; justify-content: center; gap: 24px; margin-bottom: 22px;">
+                    <a href="https://www.instagram.com/nyit_badmintonli" target="_blank" style="color: #fff; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px; opacity: 0.75;">
+                        <i class="fa-brands fa-instagram"></i> Instagram
+                    </a>
+                    <a href="https://linktr.ee/nyit_badminton" target="_blank" style="color: #fff; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px; opacity: 0.75;">
+                        <i class="fa-solid fa-link"></i> Linktree
+                    </a>
+                </div>
+                <p style="font-size: 12px; opacity: 0.5;">© 2024 NYIT Badminton · Division of Athletics & Recreation</p>
             </div>
-        {% endif %}
-    {% endwith %}
-
-    {% block content %}{% endblock %}
-
-    <footer>
-        <div class="container">
-            <p style="font-weight: 700; margin-bottom: 15px; color: white;">🏸 NYIT Badminton Team Manager</p>
-            <div style="display: flex; justify-content: center; gap: 25px; margin-bottom: 25px;">
-                <a href="https://www.instagram.com/nyit_badmintonli" target="_blank" style="color: white; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 8px; opacity: 0.8; transition: var(--transition);">
-                    <i class="fa-brands fa-instagram"></i> Instagram
-                </a>
-                <a href="https://linktr.ee/nyit_badminton" target="_blank" style="color: white; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 8px; opacity: 0.8; transition: var(--transition);">
-                    <i class="fa-solid fa-link"></i> Linktree
-                </a>
-            </div>
-            <p style="font-size: 12px; opacity: 0.5;">© 2024 NYIT Badminton. All Rights Reserved.</p>
-        </div>
-    </footer>
+        </footer>
+    </div>
+    <div class="toast-stack" id="toast-stack"></div>
 
     <script>
         const bell = document.getElementById('notif-bell');
         const dropdown = document.getElementById('notif-dropdown');
         if (bell && dropdown) {
-            bell.addEventListener('click', () => dropdown.classList.toggle('show'));
-            window.addEventListener('click', (e) => {
+            bell.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.classList.toggle('show');
+            });
+            document.addEventListener('click', (e) => {
                 if (!e.target.closest('.nav-notifications')) {
                     dropdown.classList.remove('show');
                 }
             });
         }
 
+        const sidebar = document.getElementById('sidebar');
+        const menuBtn = document.getElementById('menu-btn');
+        const backdrop = document.getElementById('sidebar-backdrop');
+        if (sidebar && menuBtn) {
+            const closeSidebar = () => {
+                sidebar.classList.remove('open');
+                backdrop.classList.remove('show');
+            };
+            menuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                backdrop.classList.toggle('show');
+            });
+            backdrop.addEventListener('click', closeSidebar);
+            sidebar.querySelectorAll('a').forEach(a => a.addEventListener('click', closeSidebar));
+        }
+
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            const apply = () => {
+                const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+                themeToggle.innerHTML = dark ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+            };
+            apply();
+            themeToggle.addEventListener('click', () => {
+                const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+                document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+                localStorage.setItem('badminton-theme', dark ? 'light' : 'dark');
+                apply();
+            });
+        }
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/static/sw.js')
-                    .then(reg => console.log('SW registered!', reg))
-                    .catch(err => console.log('SW registration failed:', err));
+                    .then(() => console.log('SW registered'))
+                    .catch(() => console.log('SW registration failed'));
             });
+        }
+
+        // ---- live toast + blip system ----
+        window.playBlip = function () {
+            try {
+                const Ctx = window.AudioContext || window.webkitAudioContext;
+                const ctx = new Ctx();
+                const o = ctx.createOscillator();
+                const g = ctx.createGain();
+                o.type = 'sine';
+                o.frequency.setValueAtTime(880, ctx.currentTime);
+                o.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.08);
+                g.gain.setValueAtTime(0.12, ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+                o.connect(g); g.connect(ctx.destination);
+                o.start(); o.stop(ctx.currentTime + 0.28);
+            } catch (e) {}
+        };
+
+        window.toast = function (msg, type = 'info', ms = 3500) {
+            const stack = document.getElementById('toast-stack');
+            if (!stack) return;
+            const t = document.createElement('div');
+            t.className = 'toast toast-' + type;
+            const icon = type === 'success' ? 'fa-circle-check' : type === 'danger' ? 'fa-circle-xmark' : 'fa-circle-info';
+            t.innerHTML = '<i class="fa-solid ' + icon + '"></i><span>' + msg + '</span>';
+            stack.appendChild(t);
+            requestAnimationFrame(() => t.classList.add('show'));
+            setTimeout(() => {
+                t.classList.remove('show');
+                setTimeout(() => t.remove(), 300);
+            }, ms);
+        };
+
+        // ---- live on-court badge (staff) ----
+        const ocBadge = document.getElementById('on-court-badge');
+        if (ocBadge) {
+            async function pollCourt() {
+                try {
+                    const r = await fetch('/api/on-court');
+                    const j = await r.json();
+                    const el = document.getElementById('on-court-badge-count');
+                    if (el) el.textContent = j.count;
+                    ocBadge.classList.toggle('bump', j.count > 0);
+                } catch (e) {}
+            }
+            pollCourt();
+            setInterval(pollCourt, 20000);
         }
     </script>
     {% block scripts %}{% endblock %}

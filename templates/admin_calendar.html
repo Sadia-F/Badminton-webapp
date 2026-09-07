@@ -62,8 +62,41 @@
 {% block content %}
     <div class="container">
         <div class="section">
-            <h2 style="text-align: center; margin-bottom: 40px;">📅 Practice Availability Heatmap</h2>
-            <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">Identify the best time slots for team practice</p>
+            <div class="page-head">
+                <div>
+                    <div class="eyebrow"><i class="fa-solid fa-fire"></i> Insights</div>
+                    <h1>Practice Availability Heatmap</h1>
+                    <p class="subtitle">Identify the best time slots for team practice</p>
+                </div>
+            </div>
+
+            {% if recommendations %}
+            <div class="card admin-section" style="margin-bottom: 32px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+                    <div>
+                        <h3 style="margin-bottom: 10px;"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--accent);"></i> Recommended practice windows</h3>
+                        <p class="text-muted" style="font-size: 13.5px; max-width: 480px;">Based on where the most players are available. Publish these to the team as a pinned announcement.</p>
+                    </div>
+                    <form method="POST" action="/admin/calendar/publish" style="margin: 0;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #F59E0B, #FFD700); color: #5C3A00;">📢 Publish to Team</button>
+                    </form>
+                </div>
+                <div class="stats-row" style="margin: 20px 0 0;">
+                    {% for rec in recommendations %}
+                        <div class="stat-card gold">
+                            <div class="sc-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                            <div>
+                                <div class="sc-num" style="font-size: 22px;">{{ rec.day }}</div>
+                                <div class="sc-lbl">{{ rec.slot }} · {{ rec.count }}/{{ rec.total }} players free</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+                <div class="flash flash-info" style="margin-bottom: 24px;">No availability data yet — ask players to set their slots on the My Availability page.</div>
+            {% endif %}
 
             <div class="card">
                 <div class="calendar-grid">
@@ -81,7 +114,7 @@
                                 {% set color_class = 'bg-none' %}
                                 {% if count >= 8 %}{% set color_class = 'bg-high' %}
                                 {% elif count >= 5 %}{% set color_class = 'bg-med' %}
-                                { % elif count > 0 %}{% set color_class = 'bg-low' %}
+                                {% elif count > 0 %}{% set color_class = 'bg-low' %}
                                 {% endif %}
 
                                 <div class="slot-cell {{ color_class }}">

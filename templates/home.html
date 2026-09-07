@@ -5,45 +5,100 @@
 {% block content %}
     <div class="hero">
         <div class="container">
-            <h1>🏸 Welcome to <span class="highlight">Team Manager</span></h1>
-            <p>The professional hub for the NYIT Badminton Team. Track attendance, manage tournaments, and reach your peak performance.</p>
+            <div class="hero-badge"><span class="dot"></span> NYIT varsity club · 2025 Season</div>
+            <h1>Welcome to <span class="highlight">Team Manager</span></h1>
+            <p>The professional hub for the NYIT Badminton Team. Track attendance, manage tournaments, rate performance, and reach your peak game.</p>
             {% if not current_user.is_authenticated %}
-                <a href="/login" class="btn-primary">🔐 Join the Team</a>
+                <a href="/login" class="btn-primary"><i class="fa-solid fa-shuttle-space"></i> Join the Team</a>
             {% else %}
-                <a href="/dashboard" class="btn-primary">📊 My Dashboard</a>
+                <a href="/dashboard" class="btn-primary"><i class="fa-solid fa-gauge-high"></i> Go to My Dashboard</a>
             {% endif %}
+
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <span class="num">{{ stats.players }}</span>
+                    <span class="lbl">Athletes</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="num">{{ stats.matches }}</span>
+                    <span class="lbl">Matches</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="num">{{ stats.tournaments }}</span>
+                    <span class="lbl">Live Tournaments</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="num">{{ stats.practices }}</span>
+                    <span class="lbl">Sessions / Week</span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="container">
-        <div class="section">
-            <h2 style="text-align: center; margin-bottom: 40px;">📢 Latest Announcements</h2>
+    <div class="container" style="max-width: 1200px; margin-top: -10px;">
+        <div class="section" style="padding-top: 56px;">
+            <div class="page-head">
+                <div>
+                    <div class="eyebrow"><i class="fa-solid fa-bullhorn"></i> Stay in the loop</div>
+                    <h1>Latest Announcements</h1>
+                </div>
+                <a href="/announcements" class="btn-ghost">View all <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
             <div class="dashboard-grid">
                 {% if announcements %}
                     {% for ann in announcements %}
                         <div class="card">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
                                 <h3 style="margin: 0;">{{ ann.title }}</h3>
                                 {% if ann.is_pinned %}<span class="role-badge admin">📌 Pinned</span>{% endif %}
                             </div>
-                            <p style="color: var(--text-muted); margin-bottom: 20px;">{{ ann.content }}</p>
-                            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 15px;">
-                                <small style="color: var(--text-muted);">📅 {{ ann.date_posted.strftime('%B %d, %Y') }}</small>
+                            <p class="text-muted" style="margin-bottom: 20px;">{{ ann.content }}</p>
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 14px;">
+                                <small class="text-muted">📅 {{ ann.date_posted.strftime('%B %d, %Y') }}</small>
                                 <span class="role-badge player">Public</span>
                             </div>
                         </div>
                     {% endfor %}
                 {% else %}
-                    <div class="card" style="text-align: center; grid-column: 1 / -1;">
-                        <p>No announcements yet. Check back soon!</p>
+                    <div class="card text-center" style="grid-column: 1 / -1;">
+                        <p class="text-muted">No announcements yet. Check back soon!</p>
                     </div>
                 {% endif %}
             </div>
         </div>
 
-        <div class="section" style="text-align: center; margin-bottom: 60px;">
-            <div class="card" style="display: inline-block; max-width: 600px; background: rgba(0, 51, 160, 0.03); border: 1px solid rgba(0, 51, 160, 0.1); padding: 30px;">
-                <p style="font-size: 14px; color: var(--nyit-blue); font-weight: 800; letter-spacing: 2px; margin-bottom: 5px; text-transform: uppercase;">
+        <div class="section" style="padding-top: 30px;">
+            <div class="page-head">
+                <div>
+                    <div class="eyebrow"><i class="fa-solid fa-circle-nodes"></i> Why Team Manager</div>
+                    <h1>Everything your club needs</h1>
+                </div>
+            </div>
+            <div class="dashboard-grid">
+                <div class="dashboard-card" onclick="location.href='/schedule'">
+                    <div class="icon"><i class="fa-solid fa-calendar-days"></i></div>
+                    <h3>Practice Schedules</h3>
+                    <p>Weekly sessions synced to your calendar with one tap.</p>
+                    <i class="fa-solid fa-arrow-right go-arrow"></i>
+                </div>
+                <div class="dashboard-card" onclick="location.href='/team'">
+                    <div class="icon"><i class="fa-solid fa-users"></i></div>
+                    <h3>Team Roster</h3>
+                    <p>Meet your teammates and track their rise through the ranks.</p>
+                    <i class="fa-solid fa-arrow-right go-arrow"></i>
+                </div>
+                <div class="dashboard-card" onclick="location.href='/brackets'">
+                    <div class="icon"><i class="fa-solid fa-diagram-project"></i></div>
+                    <h3>Tournament Brackets</h3>
+                    <p>Automatically seeded, balanced brackets from real ratings.</p>
+                    <i class="fa-solid fa-arrow-right go-arrow"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="section text-center" style="padding-top: 20px; padding-bottom: 20px;">
+            <div class="card" style="display: inline-block; max-width: 620px; background: linear-gradient(135deg, rgba(0,51,160,0.04), rgba(10,92,255,0.03)); border: 1px solid rgba(0,51,160,0.15); padding: 30px 44px;">
+                <p style="font-size: 13px; color: var(--primary); font-weight: 800; letter-spacing: 2px; margin-bottom: 6px; text-transform: uppercase;">
                     🎓 New York Institute of Technology
                 </p>
                 <p style="font-size: 13px; color: var(--text-muted); margin: 0;">
